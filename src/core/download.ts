@@ -46,7 +46,8 @@ async function downloadFile(url: string, destPath: string): Promise<void> {
 // 下载字体文件
 export async function downloadFonts(
   cacheDir: string,
-  fonts: FontConfig[]
+  fonts: FontConfig[],
+  noCache = false
 ): Promise<Map<string, string>> {
   consola.info("下载字体文件...");
 
@@ -57,6 +58,11 @@ export async function downloadFonts(
   for (const font of fonts) {
     const fileName = `${font.family}-${font.weight}.ttf`;
     const cachePath = path.join(cacheDir, fileName);
+
+    // 清除缓存
+    if (noCache && fs.existsSync(cachePath)) {
+      fs.unlinkSync(cachePath);
+    }
 
     // 检查缓存
     if (fs.existsSync(cachePath)) {
