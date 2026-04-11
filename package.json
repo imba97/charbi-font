@@ -65,7 +65,8 @@
     "lint:fix": "vp lint --fix",
     "fmt": "vp fmt",
     "fmt:fix": "vp fmt --write",
-    "prepare": "simple-git-hooks"
+    "prepare": "simple-git-hooks",
+    "release": "bumpp"
   },
   "dependencies": {
     "cac": "^7.0.0",
@@ -79,6 +80,7 @@
   },
   "devDependencies": {
     "@types/node": "^25.6.0",
+    "bumpp": "^11.0.1",
     "cos-nodejs-sdk-v5": "^2.15.4",
     "nano-staged": "^1.0.2",
     "simple-git-hooks": "^2.13.1",
