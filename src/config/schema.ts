@@ -96,7 +96,7 @@ export interface UserConfig {
   upload?: UploadConfig;
   // COS 上传配置（provider=cos 时使用）
   cos?: COSConfig;
-  // 缓存目录（可选，默认为 node_modules/charbi/.cache/fonts）
+  // 缓存目录（可选，默认为 node_modules/charbi-font/.cache/fonts）
   cacheDir?: string;
 }
 

@@ -1,4 +1,4 @@
-# charbi
+# charbi-font
 
 中文字体子集化工具，扫描代码提取字符，生成精简字体包。
 
@@ -13,9 +13,9 @@
 ## 安装
 
 ```bash
-npm install charbi
+npm install charbi-font
 # 或
-pnpm add charbi
+pnpm add charbi-font
 ```
 
 如需 CDN 上传功能，需安装 `cos-nodejs-sdk-v5`：
@@ -33,7 +33,7 @@ pnpm add cos-nodejs-sdk-v5
 在项目根目录创建 `fonts.config.ts`：
 
 ```typescript
-import { defineConfig } from "charbi/config";
+import { defineConfig } from "charbi-font/config";
 
 export default defineConfig({
   build: {
@@ -72,7 +72,7 @@ export default defineConfig({
 ### 2. 执行构建
 
 ```bash
-charbi
+charbi-font
 ```
 
 ### 3. 引入字体
@@ -141,7 +141,7 @@ src/styles/
 
 ### `cacheDir`
 
-自定义缓存目录（默认：`node_modules/charbi/.cache/fonts`）：
+自定义缓存目录（默认：`node_modules/charbi-font/.cache/fonts`）：
 
 ```typescript
 export default defineConfig({
@@ -166,7 +166,7 @@ export default defineConfig({
 ## 使用命令
 
 ```bash
-charbi    # 执行构建
+charbi-font    # 执行构建
 ```
 
 ## License

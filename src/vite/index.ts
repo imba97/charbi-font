@@ -37,13 +37,13 @@ function resolveBuildFontVersion(): string {
 
 export default function UniBuildFont(buildFontVersion = resolveBuildFontVersion()): VitePluginLike {
   return {
-    name: "virtual-charbi",
+    name: "virtual-charbi-font",
     resolveId(id: string) {
-      if (id === "virtual:charbi") return "\0virtual:charbi";
+      if (id === "virtual:charbi-font") return "\0virtual:charbi-font";
       return null;
     },
     load(id: string) {
-      if (id === "\0virtual:charbi") {
+      if (id === "\0virtual:charbi-font") {
         return `export const FONT_BUILD_VERSION = ${JSON.stringify(buildFontVersion)}`;
       }
       return null;

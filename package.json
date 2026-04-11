@@ -1,5 +1,5 @@
 {
-  "name": "charbi",
+  "name": "charbi-font",
   "version": "0.0.0",
   "description": "中文字体子集化工具，扫描代码提取字符，生成精简字体包",
   "keywords": [
@@ -8,12 +8,12 @@
     "font",
     "subset"
   ],
-  "homepage": "https://github.com/imba97/charbi#readme",
+  "homepage": "https://github.com/imba97/charbi-font#readme",
   "license": "MIT",
   "author": "imba97",
   "repository": {
     "type": "git",
-    "url": "git@github.com:imba97/charbi.git"
+    "url": "git@github.com:imba97/charbi-font.git"
   },
   "bin": {
     "charbi": "./bin/charbi.mjs"

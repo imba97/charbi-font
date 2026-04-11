@@ -38,7 +38,7 @@ export function getCacheDir(userCacheDir?: string): string {
   if (userCacheDir) {
     return path.isAbsolute(userCacheDir) ? userCacheDir : path.join(getProjectRoot(), userCacheDir);
   }
-  // 默认使用包目录下的 .cache/fonts（node_modules/charbi/.cache/fonts）
+  // 默认使用包目录下的 .cache/fonts（node_modules/charbi-font/.cache/fonts）
   return path.join(_dirname, "../../.cache/fonts");
 }
 
