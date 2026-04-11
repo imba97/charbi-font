@@ -1,0 +1,89 @@
+{
+  "name": "charbi",
+  "version": "0.0.0",
+  "description": "中文字体子集化工具，扫描代码提取字符，生成精简字体包",
+  "bin": {
+    "charbi": "./bin/font-build.mjs"
+  },
+  "files": [
+    "README.md",
+    "bin",
+    "dist",
+    "package.json"
+  ],
+  "type": "module",
+  "typesVersions": {
+    "*": {
+      "loader": [
+        "./dist/config/loader.d.mts"
+      ],
+      "config": [
+        "./dist/config/index.d.mts"
+      ],
+      "vite": [
+        "./dist/vite/index.d.mts"
+      ]
+    }
+  },
+  "exports": {
+    "./cli": {
+      "import": "./dist/cli.mjs",
+      "require": "./dist/cli.cjs"
+    },
+    "./config": {
+      "import": "./dist/config/index.mjs",
+      "require": "./dist/config/index.cjs"
+    },
+    "./config/loader": {
+      "import": "./dist/config/loader.mjs",
+      "require": "./dist/config/loader.cjs"
+    },
+    "./vite": {
+      "import": "./dist/vite/index.mjs",
+      "require": "./dist/vite/index.cjs"
+    }
+  },
+  "scripts": {
+    "build": "vp pack",
+    "dev": "vp pack --watch",
+    "charbi": "node dist/cli.mjs",
+    "test": "vp test run",
+    "test:watch": "vp test",
+    "check": "vp check",
+    "check:fix": "vp check --fix",
+    "lint": "vp lint",
+    "lint:fix": "vp lint --fix",
+    "fmt": "vp fmt",
+    "fmt:fix": "vp fmt --write",
+    "prepare": "simple-git-hooks"
+  },
+  "dependencies": {
+    "consola": "^3.4.2",
+    "defu": "^6.1.7",
+    "enquirer": "^2.4.1",
+    "fast-glob": "^3.3.3",
+    "fontmin": "^1.1.1",
+    "p-limit": "^7.3.0",
+    "unconfig": "^7.5.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.6.0",
+    "cos-nodejs-sdk-v5": "^2.15.4",
+    "nano-staged": "^1.0.2",
+    "simple-git-hooks": "^2.13.1",
+    "typescript": "^6.0.2",
+    "vite-plus": "^0.1.16"
+  },
+  "peerDependencies": {
+    "cos-nodejs-sdk-v5": "*"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "pnpm nano-staged"
+  },
+  "nano-staged": {
+    "src/**/*.{ts,js,mjs,cjs}": "vp check --fix",
+    "vite.config.ts": "vp check --fix",
+    "package.json": "vp check --fix",
+    "README.md": "vp check --fix"
+  }
+}
