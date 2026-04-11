@@ -1,4 +1,3 @@
-import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
@@ -11,27 +10,27 @@ import { uploadToCDN } from "../../src/uploader";
 
 vi.mock("../../src/config/loader", () => ({
   loadConfig: vi.fn(),
-  getVersion: vi.fn(),
+  getVersion: vi.fn()
 }));
 
 vi.mock("../../src/core/download", () => ({
-  downloadFonts: vi.fn(),
+  downloadFonts: vi.fn()
 }));
 
 vi.mock("../../src/core/scan", () => ({
-  collectChars: vi.fn(),
+  collectChars: vi.fn()
 }));
 
 vi.mock("../../src/core/subset", () => ({
-  generateFontSubset: vi.fn(),
+  generateFontSubset: vi.fn()
 }));
 
 vi.mock("../../src/core/generate-css", () => ({
-  generateFontCss: vi.fn(),
+  generateFontCss: vi.fn()
 }));
 
 vi.mock("../../src/uploader", () => ({
-  uploadToCDN: vi.fn(),
+  uploadToCDN: vi.fn()
 }));
 
 describe("cli dependencies", () => {
@@ -49,7 +48,7 @@ describe("cli dependencies", () => {
         upload: { provider: "cos" as const, concurrency: 5 },
         cos: {},
         root: process.cwd(),
-        cacheDir: path.join(os.tmpdir(), "test-cache"),
+        cacheDir: path.join(os.tmpdir(), "test-cache")
       };
 
       (loadConfig as ReturnType<typeof vi.fn>).mockResolvedValue(mockConfig);
@@ -66,7 +65,9 @@ describe("cli dependencies", () => {
       const fontPathMap = new Map([["Test-400", "/path/to/font.ttf"]]);
       (downloadFonts as ReturnType<typeof vi.fn>).mockResolvedValue(fontPathMap);
 
-      const fonts = [{ family: "Test", name: "Regular", weight: 400, url: "http://test.com/font.ttf" }];
+      const fonts = [
+        { family: "Test", name: "Regular", weight: 400, url: "http://test.com/font.ttf" }
+      ];
       const cacheDir = os.tmpdir();
 
       await downloadFonts(cacheDir, fonts, true);
@@ -78,7 +79,9 @@ describe("cli dependencies", () => {
       const fontPathMap = new Map([["Test-400", "/path/to/font.ttf"]]);
       (downloadFonts as ReturnType<typeof vi.fn>).mockResolvedValue(fontPathMap);
 
-      const fonts = [{ family: "Test", name: "Regular", weight: 400, url: "http://test.com/font.ttf" }];
+      const fonts = [
+        { family: "Test", name: "Regular", weight: 400, url: "http://test.com/font.ttf" }
+      ];
       const cacheDir = os.tmpdir();
 
       await downloadFonts(cacheDir, fonts, false);
@@ -106,7 +109,9 @@ describe("cli dependencies", () => {
 
       (generateFontSubset as ReturnType<typeof vi.fn>).mockResolvedValue(fontGroupMap);
 
-      const fonts = [{ family: "Test", name: "Regular", weight: 400, url: "http://test.com/font.ttf" }];
+      const fonts = [
+        { family: "Test", name: "Regular", weight: 400, url: "http://test.com/font.ttf" }
+      ];
       const tempDir = os.tmpdir();
 
       await generateFontSubset(fontPathMap, tempDir, charSet, fonts, "woff");
@@ -122,7 +127,7 @@ describe("cli dependencies", () => {
       const fontGroupMap = new Map();
       const config = {
         output: { cssDir: "src/styles", format: "woff" as const, styleFormat: "scss" as const },
-        root: process.cwd(),
+        root: process.cwd()
       };
 
       await generateFontCss(fontGroupMap, config as any, "2.0.0", "woff");
@@ -138,7 +143,7 @@ describe("cli dependencies", () => {
       const fontFiles = ["/path/to/font1.woff", "/path/to/font2.woff"];
       const config = {
         upload: { provider: "cos" as const, concurrency: 5 },
-        cos: { secretId: "test", secretKey: "test", bucket: "test", region: "ap-guangzhou" },
+        cos: { bucket: "test", region: "ap-guangzhou" }
       };
 
       await uploadToCDN(fontFiles, "1.0.0", config as any);

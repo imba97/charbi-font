@@ -61,8 +61,6 @@ export default defineConfig({
     }
   },
   cos: {
-    secretId: process.env.COS_SECRET_ID,
-    secretKey: process.env.COS_SECRET_KEY,
     bucket: "your-bucket",
     region: "ap-guangzhou",
     basePath: "static/fonts/{version}",

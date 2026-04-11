@@ -36,10 +36,6 @@ export interface ScanConfig {
 
 // COS 配置
 export interface COSConfig {
-  // SecretId
-  secretId?: string;
-  // SecretKey
-  secretKey?: string;
   // Bucket 名称
   bucket?: string;
   // 所属地域
@@ -72,6 +68,12 @@ export interface OutputConfig {
   styleFormat: StyleFormat;
 }
 
+// 环境变量配置
+export interface EnvConfig {
+  development?: string;
+  production?: string;
+}
+
 // 构建配置
 export interface BuildConfig {
   // 扫描配置
@@ -82,6 +84,8 @@ export interface BuildConfig {
   output: OutputConfig;
   // 版本号（可选，为空时从 package.json 读取）
   version?: string;
+  // 环境变量文件配置
+  env?: EnvConfig;
 }
 
 // 主配置
@@ -97,7 +101,7 @@ export interface UserConfig {
 }
 
 // 内部完整配置（包含默认值）
-export interface ResolvedConfig extends Required<Omit<BuildConfig, "version">> {
+export interface ResolvedConfig extends Required<Omit<BuildConfig, "version" | "env">> {
   // 上传配置
   upload: UploadConfig;
   // COS 配置（上传时交互式获取）
@@ -108,6 +112,10 @@ export interface ResolvedConfig extends Required<Omit<BuildConfig, "version">> {
   cacheDir: string;
   // 版本号（可选）
   version?: string;
+  // 环境变量配置
+  env: EnvConfig;
+  // 当前模式
+  mode: "development" | "production";
 }
 
 // 默认配置

@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 import { createDefu } from "defu";
 import { loadConfig as unconfigLoadConfig } from "unconfig";
 import { defaultConfig } from "./schema";
+import { parseEnv } from "node:util";
 
 const defu = createDefu((obj, key, value) => {
   // 数组不合并，直接覆盖
@@ -41,8 +42,32 @@ export function getCacheDir(userCacheDir?: string): string {
   return path.join(_dirname, "../../.cache/fonts");
 }
 
+// 加载环境变量文件
+export function loadEnvFile(
+  mode: "development" | "production",
+  userEnv?: BuildConfig["env"]
+): void {
+  const defaultEnv = {
+    development: ".env.development",
+    production: ".env.production"
+  };
+
+  const envFile = userEnv?.[mode] || defaultEnv[mode];
+  const envPath = path.join(getProjectRoot(), envFile);
+
+  if (fs.existsSync(envPath)) {
+    const content = fs.readFileSync(envPath, "utf-8");
+    const envVars = parseEnv(content);
+    for (const [key, value] of Object.entries(envVars)) {
+      process.env[key] = value as string;
+    }
+  }
+}
+
 // 加载配置
-export async function loadConfig(): Promise<ResolvedConfig> {
+export async function loadConfig(
+  mode: "development" | "production" = "development"
+): Promise<ResolvedConfig> {
   const result = await unconfigLoadConfig<UserConfig>({
     sources: [
       {
@@ -55,6 +80,9 @@ export async function loadConfig(): Promise<ResolvedConfig> {
   });
 
   const userConfig = result.config || {};
+
+  // 加载环境变量文件
+  loadEnvFile(mode, userConfig.build?.env);
 
   // 合并构建配置
   const mergedBuild = defu(userConfig.build || {}, defaultConfig) as BuildConfig;
@@ -76,7 +104,9 @@ export async function loadConfig(): Promise<ResolvedConfig> {
     cos: userConfig.cos || {},
     root: getProjectRoot(),
     cacheDir: getCacheDir(userConfig.cacheDir),
-    version: mergedBuild.version
+    version: mergedBuild.version,
+    env: mergedBuild.env || {},
+    mode
   };
 
   return resolved;

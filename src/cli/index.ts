@@ -15,12 +15,17 @@ interface BuildOptions {
   cache?: boolean;
 }
 
+interface GlobalOptions {
+  mode?: "development" | "production";
+}
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const pkg = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../package.json"), "utf-8"));
 
 const cli = new CAC("charbi");
 
 cli.version(pkg.version);
+cli.option("--mode <mode>", "development 或 production");
 
 cli.command("").action(runBuild);
 
@@ -28,11 +33,13 @@ cli.command("build").option("--no-cache", "强制重新下载字体文件").acti
 
 cli.command("upload").action(runUpload);
 
-async function runBuild(options: BuildOptions) {
-  const config = await loadConfig();
+async function runBuild(options: BuildOptions, globalOptions: GlobalOptions) {
+  const mode = globalOptions.mode || "development";
+  const config = await loadConfig(mode);
   const baseVersion = getVersion(config.version);
 
   consola.info("charbi");
+  consola.info(`   模式: ${mode}`);
   consola.info(`   版本基线: ${baseVersion}`);
   consola.info(`   格式: ${config.output.format}`);
 
@@ -90,8 +97,9 @@ async function runBuild(options: BuildOptions) {
   }
 }
 
-async function runUpload() {
-  const config = await loadConfig();
+async function runUpload(_options: unknown, globalOptions: GlobalOptions) {
+  const mode = globalOptions.mode || "development";
+  const config = await loadConfig(mode);
   const baseVersion = getVersion(config.version);
   const versionStr = baseVersion;
 

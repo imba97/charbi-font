@@ -34,23 +34,19 @@ async function collectCOSConfig(
   const uploadPath = defaultConfig.basePath.replace("{version}", version);
   const questions: any[] = [];
 
-  if (!defaultConfig.secretId) {
-    questions.push({
-      type: "input",
-      name: "secretId",
-      message: "请输入腾讯云 SecretId:",
-      validate: (value: string) => value.length > 0 || "SecretId 不能为空"
-    });
-  }
+  questions.push({
+    type: "input",
+    name: "secretId",
+    message: "请输入腾讯云 SecretId:",
+    validate: (value: string) => value.length > 0 || "SecretId 不能为空"
+  });
 
-  if (!defaultConfig.secretKey) {
-    questions.push({
-      type: "password",
-      name: "secretKey",
-      message: "请输入腾讯云 SecretKey:",
-      validate: (value: string) => value.length > 0 || "SecretKey 不能为空"
-    });
-  }
+  questions.push({
+    type: "password",
+    name: "secretKey",
+    message: "请输入腾讯云 SecretKey:",
+    validate: (value: string) => value.length > 0 || "SecretKey 不能为空"
+  });
 
   if (defaultConfig.overwrite === undefined) {
     questions.push({
@@ -61,11 +57,11 @@ async function collectCOSConfig(
     });
   }
 
-  const answers = questions.length > 0 ? await enquirer.prompt<any>(questions) : {};
+  const answers = await enquirer.prompt<any>(questions);
 
   return {
-    secretId: defaultConfig.secretId || answers.secretId,
-    secretKey: defaultConfig.secretKey || answers.secretKey,
+    secretId: answers.secretId,
+    secretKey: answers.secretKey,
     bucket: defaultConfig.bucket,
     region: defaultConfig.region,
     uploadPath,
