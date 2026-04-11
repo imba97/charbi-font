@@ -98,5 +98,6 @@
     "vite.config.ts": "vp check --fix",
     "package.json": "vp check --fix",
     "README.md": "vp check --fix"
-  }
+  },
+  "packageManager": "pnpm@10.33.0"
 }
