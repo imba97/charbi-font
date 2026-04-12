@@ -2,7 +2,6 @@ import type { BuildConfig, ResolvedConfig, UserConfig } from "./schema";
 import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
-import { fileURLToPath } from "node:url";
 import { createDefu } from "defu";
 import { loadConfig as unconfigLoadConfig } from "unconfig";
 import { defaultConfig } from "./schema";
@@ -36,16 +35,11 @@ export function getCacheDir(userCacheDir?: string): string {
   if (userCacheDir) {
     return path.isAbsolute(userCacheDir) ? userCacheDir : path.join(getProjectRoot(), userCacheDir);
   }
-  // 默认使用 node_modules/charbi-font/.cache/fonts（解析 symlink 获取真实路径）
-  const selfPath = fileURLToPath(import.meta.url);
-  const selfDir = path.dirname(selfPath);
-  let packageDir: string;
-  try {
-    packageDir = fs.realpathSync(selfDir);
-  } catch {
-    packageDir = selfDir;
-  }
-  return path.join(packageDir, ".cache/fonts");
+  // 默认使用 node_modules/charbi-font/.cache/fonts
+  // 从项目根目录向上查找 node_modules/charbi-font
+  const root = getProjectRoot();
+  const nodeModulesCharbi = path.join(root, "node_modules", "charbi-font");
+  return path.join(nodeModulesCharbi, ".cache/fonts");
 }
 
 // 加载环境变量文件
