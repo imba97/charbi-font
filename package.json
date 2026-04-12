@@ -1,6 +1,6 @@
 {
   "name": "charbi-font",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "中文字体子集化工具，扫描代码提取字符，生成精简字体包",
   "keywords": [
     "builder",
