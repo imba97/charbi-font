@@ -116,7 +116,7 @@ export async function loadConfig(
     },
     cos: userConfig.cos || {},
     root: getProjectRoot(),
-    cacheDir: getCacheDir(userConfig.cacheDir),
+    cacheDir: getCacheDir(userConfig.build?.cacheDir),
     version: mergedBuild.version,
     env: mergedBuild.env || {},
     mode

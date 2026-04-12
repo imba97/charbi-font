@@ -86,6 +86,8 @@ export interface BuildConfig {
   version?: string;
   // 环境变量文件配置
   env?: EnvConfig;
+  // 缓存目录（可选，默认为 node_modules/charbi-font/.cache/fonts）
+  cacheDir?: string;
 }
 
 // 主配置
@@ -96,8 +98,6 @@ export interface UserConfig {
   upload?: UploadConfig;
   // COS 上传配置（provider=cos 时使用）
   cos?: COSConfig;
-  // 缓存目录（可选，默认为 node_modules/charbi-font/.cache/fonts）
-  cacheDir?: string;
 }
 
 // 内部完整配置（包含默认值）
