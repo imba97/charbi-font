@@ -8,7 +8,6 @@ import { generateFontCss } from "../core/generate-css";
 import { collectChars } from "../core/scan";
 import { generateFontSubset } from "../core/subset";
 import { uploadToCDN } from "../uploader";
-import { FONT_ASSETS_DIR } from "../config/schema";
 import { getVersion, loadConfig } from "../config/loader";
 import consola from "consola";
 
@@ -60,9 +59,13 @@ async function runBuild(options: BuildOptions, globalOptions?: GlobalOptions) {
   consola.info(`   版本基线: ${baseVersion}`);
   consola.info(`   格式: ${config.output.format}`);
 
-  // 字体文件输出目录（src/styles/font-assets/）
-  const assetsDir = path.join(config.root, config.output.cssDir, FONT_ASSETS_DIR);
-  fs.mkdirSync(assetsDir, { recursive: true });
+  // 字体子集输出目录（缓存目录）
+  const subsetCacheDir = path.join(config.cacheDir, "subsets");
+  fs.mkdirSync(subsetCacheDir, { recursive: true });
+  // 清空旧文件
+  for (const entry of fs.readdirSync(subsetCacheDir)) {
+    fs.unlinkSync(path.join(subsetCacheDir, entry));
+  }
 
   const fontPathMap = await downloadFonts(config.cacheDir, config.fonts, !options.cache);
 
@@ -75,7 +78,7 @@ async function runBuild(options: BuildOptions, globalOptions?: GlobalOptions) {
 
   const fontGroupMap = await generateFontSubset(
     fontPathMap,
-    assetsDir,
+    subsetCacheDir,
     chars,
     config.fonts,
     config.output.format
@@ -94,7 +97,7 @@ async function runBuild(options: BuildOptions, globalOptions?: GlobalOptions) {
   consola.success("字体子集生成完成!");
   consola.info(`   生成文件: ${fontCount} 个`);
   consola.info(`   总大小: ${totalFontSizeKB} KB`);
-  consola.info(`   输出目录: ${assetsDir}`);
+  consola.info(`   输出目录: ${subsetCacheDir}`);
 
   const versionStr = baseVersion;
   consola.info(`   字体版本: ${versionStr}`);
@@ -112,18 +115,18 @@ async function runUpload(_options: unknown, globalOptions?: GlobalOptions) {
   consola.info(`   模式: ${mode}`);
   consola.info(`   版本: ${versionStr}`);
 
-  // 从 font-assets 目录读取字体文件
-  const assetsDir = path.join(config.root, config.output.cssDir, FONT_ASSETS_DIR);
+  // 从缓存的 subsets 目录读取字体文件
+  const subsetCacheDir = path.join(config.cacheDir, "subsets");
 
-  if (!fs.existsSync(assetsDir)) {
-    consola.error(`没有找到字体文件目录: ${assetsDir}`);
+  if (!fs.existsSync(subsetCacheDir)) {
+    consola.error(`没有找到字体文件目录: ${subsetCacheDir}`);
     consola.error("请先执行 build 命令");
     process.exit(1);
   }
 
   const fontFiles: string[] = [];
-  for (const entry of fs.readdirSync(assetsDir)) {
-    const filePath = path.join(assetsDir, entry);
+  for (const entry of fs.readdirSync(subsetCacheDir)) {
+    const filePath = path.join(subsetCacheDir, entry);
     if (fs.statSync(filePath).isFile()) {
       fontFiles.push(filePath);
     }
