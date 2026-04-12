@@ -33,8 +33,8 @@ cli.command("build").option("--no-cache", "强制重新下载字体文件").acti
 
 cli.command("upload").action(runUpload);
 
-async function runBuild(options: BuildOptions, globalOptions: GlobalOptions) {
-  const mode = globalOptions.mode || "development";
+async function runBuild(options: BuildOptions, globalOptions?: GlobalOptions) {
+  const mode = globalOptions?.mode || "development";
   const config = await loadConfig(mode);
   const baseVersion = getVersion(config.version);
 
@@ -97,8 +97,8 @@ async function runBuild(options: BuildOptions, globalOptions: GlobalOptions) {
   }
 }
 
-async function runUpload(_options: unknown, globalOptions: GlobalOptions) {
-  const mode = globalOptions.mode || "development";
+async function runUpload(_options: unknown, globalOptions?: GlobalOptions) {
+  const mode = globalOptions?.mode || "development";
   const config = await loadConfig(mode);
   const baseVersion = getVersion(config.version);
   const versionStr = baseVersion;
