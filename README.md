@@ -69,10 +69,12 @@ export default defineConfig({
 });
 ```
 
-### 2. 执行构建
+### 2. 执行构建和上传
 
 ```bash
-charbi-font
+charbi          # 构建 + 上传
+charbi build    # 仅构建（生成字体子集）
+charbi upload   # 仅上传（上传已构建的字体）
 ```
 
 ### 3. 引入字体
@@ -102,11 +104,16 @@ import "@/styles/fonts";
 ## 输出结构
 
 ```
-src/styles/
-├── font-assets/
-│   ├── alibaba-pu-hui-ti.scss   # 阿里普惠体（多字重）
-│   └── fonts.scss               # 汇总引入文件
-└── fonts.scss                  # 入口文件
+项目目录/
+├── src/styles/
+│   ├── font-assets/
+│   │   ├── alibaba-pu-hui-ti.scss   # 阿里普惠体（多字重）
+│   │   └── fonts.scss               # 汇总引入文件
+│   └── fonts.scss                  # 入口文件
+│
+└── node_modules/charbi-font/.cache/fonts/  # 字体缓存
+    ├── subsets/                     # 字体子集（构建产物）
+    └── AlibabaPuHuiTi-400.ttf       # 原始字体缓存
 ```
 
 ## 配置说明
@@ -139,15 +146,15 @@ src/styles/
 | `format`      | `'woff' \| 'woff2' \| 'ttf'` | `'woff'`       | 输出格式     |
 | `styleFormat` | `'scss' \| 'css'`            | `'scss'`       | 样式文件格式 |
 
-### `cacheDir`
+### `build.cacheDir`
 
 自定义缓存目录（默认：`node_modules/charbi-font/.cache/fonts`）：
 
 ```typescript
 export default defineConfig({
-  cacheDir: ".cache/fonts", // 相对于项目根目录
-  // 或绝对路径
-  cacheDir: "/path/to/cache/fonts"
+  build: {
+    cacheDir: ".cache/fonts" // 相对于项目根目录
+  }
 });
 ```
 
@@ -163,10 +170,33 @@ export default defineConfig({
 }
 ```
 
+## Vite 插件
+
+配合 Vite 使用时，可引入 `virtual:charbi-font` 获取构建版本号：
+
+```typescript
+import { FONT_BUILD_VERSION } from "virtual:charbi-font";
+
+console.log(FONT_BUILD_VERSION); // "1.0.0"
+```
+
+在 `vite.config.ts` 中启用插件：
+
+```typescript
+import charbiFont from "charbi-font/vite";
+
+export default defineConfig({
+  plugins: [charbiFont()]
+});
+```
+
 ## 使用命令
 
 ```bash
-charbi-font    # 执行构建
+charbi          # 构建 + 上传到 CDN
+charbi build    # 仅构建（生成字体子集到缓存目录）
+charbi upload   # 仅上传（上传缓存目录中的字体到 CDN）
+charbi --mode production  # 使用 production 模式
 ```
 
 ## License
