@@ -16,7 +16,20 @@ const defu = createDefu((obj, key, value) => {
   }
 });
 
-const _dirname = path.dirname(fileURLToPath(import.meta.url));
+// 解析模块路径（处理 pnpm symlink）
+function getPackageDir(): string {
+  const selfPath = fileURLToPath(import.meta.url);
+  const selfDir = path.dirname(selfPath);
+  try {
+    // 解析到真实路径（pnpm symlink 会解析，npm/yarn 真实目录会原样返回）
+    return fs.realpathSync(selfDir);
+  } catch {
+    // 解析失败时返回原始路径（极少见）
+    return selfDir;
+  }
+}
+
+const _packageDir = getPackageDir();
 
 // 获取项目根目录
 export function getProjectRoot(): string {
@@ -39,7 +52,7 @@ export function getCacheDir(userCacheDir?: string): string {
     return path.isAbsolute(userCacheDir) ? userCacheDir : path.join(getProjectRoot(), userCacheDir);
   }
   // 默认使用包目录下的 .cache/fonts（node_modules/charbi-font/.cache/fonts）
-  return path.join(_dirname, "../../.cache/fonts");
+  return path.join(_packageDir, "../../.cache/fonts");
 }
 
 // 加载环境变量文件
