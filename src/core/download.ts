@@ -50,6 +50,7 @@ export async function downloadFonts(
   noCache = false
 ): Promise<Map<string, string>> {
   consola.info("下载字体文件...");
+  consola.info(`   缓存目录: ${cacheDir}`);
 
   fs.mkdirSync(cacheDir, { recursive: true });
 
