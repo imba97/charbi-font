@@ -190,6 +190,19 @@ export default defineConfig({
 });
 ```
 
+## TypeScript 类型支持
+
+如果你在业务代码中直接使用虚拟模块：
+
+```ts
+import { FONT_BUILD_VERSION } from "virtual:charbi-font";
+```
+
+请在项目中启用 `charbi-font/client` 类型入口（二选一）：
+
+1. `/// <reference types="charbi-font/client" />`（推荐放在 `env.d.ts`）
+2. `tsconfig.json` -> `compilerOptions.types` 中添加 `"charbi-font/client"`
+
 ## 使用命令
 
 ```bash

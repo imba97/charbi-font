@@ -8,7 +8,13 @@ export default defineConfig({
     "README.md": "vp check --fix"
   },
   pack: {
-    entry: ["src/config/loader.ts", "src/config/index.ts", "src/vite/index.ts", "src/cli.ts"],
+    entry: [
+      "src/config/loader.ts",
+      "src/config/index.ts",
+      "src/vite/index.ts",
+      "src/cli.ts",
+      "src/client.ts"
+    ],
     outDir: "dist",
     dts: true,
     exports: {

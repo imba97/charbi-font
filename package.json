@@ -32,6 +32,9 @@
       ],
       "vite": [
         "./dist/vite/index.d.mts"
+      ],
+      "client": [
+        "./dist/client.d.mts"
       ]
     }
   },
@@ -39,6 +42,10 @@
     "./cli": {
       "import": "./dist/cli.mjs",
       "require": "./dist/cli.cjs"
+    },
+    "./client": {
+      "import": "./dist/client.mjs",
+      "require": "./dist/client.cjs"
     },
     "./config": {
       "import": "./dist/config/index.mjs",
