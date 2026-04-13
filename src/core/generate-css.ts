@@ -21,9 +21,11 @@ function toFontUrl(
     }
     const filename = `${normalizeFamilyForFileName(font.family)}-${font.weight}.${extension}`;
     const basePath = cos.basePath.replace("{version}", version);
-    // 移除 basePath 开头的 / 避免双斜杠
-    const cleanPath = basePath.startsWith("/") ? basePath.slice(1) : basePath;
-    return `${cos.cdnUrl}/${cleanPath}/${filename}`.replace(/\/+/g, "/");
+
+    // 保留协议头（https://），仅规范主机后路径的斜杠
+    const cleanCdn = cos.cdnUrl.replace(/\/+$/, "");
+    const cleanPath = basePath.replace(/^\/+|\/+$/g, "");
+    return `${cleanCdn}/${cleanPath}/${filename}`;
   }
   // 本地路径
   return `./fonts/${normalizeFamilyForFileName(font.family)}-${font.weight}.${extension}`;
