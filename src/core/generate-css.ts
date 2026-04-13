@@ -48,6 +48,42 @@ function generateFontFace(
 }`;
 }
 
+function normalizeFormat(format: string): string {
+  return format.toLowerCase();
+}
+
+function toFontExtension(format: string): string {
+  const normalized = normalizeFormat(format);
+  const extensionMap: Record<string, string> = {
+    truetype: "ttf",
+    ttf: "ttf",
+    opentype: "otf",
+    otf: "otf",
+    "embedded-opentype": "eot",
+    eot: "eot",
+    woff: "woff",
+    woff2: "woff2",
+    svg: "svg"
+  };
+  return extensionMap[normalized] || normalized;
+}
+
+function toCssFontFormat(format: string): string {
+  const normalized = normalizeFormat(format);
+  const cssFormatMap: Record<string, string> = {
+    ttf: "truetype",
+    truetype: "truetype",
+    otf: "opentype",
+    opentype: "opentype",
+    eot: "embedded-opentype",
+    "embedded-opentype": "embedded-opentype",
+    woff: "woff",
+    woff2: "woff2",
+    svg: "svg"
+  };
+  return cssFormatMap[normalized] || normalized;
+}
+
 // 获取文件扩展名
 function getStyleExt(styleFormat: StyleFormat): string {
   return styleFormat === "scss" ? "scss" : "css";
@@ -106,13 +142,13 @@ export async function generateFontCss(
     // 为每个字重生成 @font-face
     for (const subset of subsets) {
       const { config: font, size } = subset;
-
-      const fontUrl = toFontUrl(config, font, version, subsetExtension);
+      const subsetFormat = subset.format || subsetExtension;
+      const fontUrl = toFontUrl(config, font, version, toFontExtension(subsetFormat));
       cssContent += generateFontFace(
         family,
         font.weight,
         fontUrl,
-        config.output.format,
+        toCssFontFormat(subsetFormat),
         font.style || "normal"
       );
       cssContent += "\n\n";
