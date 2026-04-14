@@ -64,8 +64,8 @@ export interface OutputConfig {
   cssDir: string;
   // 字体文件格式（用于子集化，可被单个字体的 format 覆盖）
   format: FontFormat;
-  // 样式文件格式（scss 或 css）
-  styleFormat: StyleFormat;
+  // 样式文件格式（scss 或 css），可选，默认 css
+  styleFormat?: StyleFormat;
 }
 
 // 环境变量配置
@@ -129,7 +129,7 @@ export const defaultConfig: Omit<BuildConfig, "version"> = {
   output: {
     cssDir: "src/styles",
     format: "woff",
-    styleFormat: "scss"
+    styleFormat: "css"
   }
 };
 

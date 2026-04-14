@@ -46,4 +46,39 @@ describe("generateFontCss format mapping", () => {
       fs.rmSync(root, { recursive: true, force: true });
     }
   });
+
+  it("should fallback to css when styleFormat is not provided", async () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), "charbi-css-default-"));
+    try {
+      const config = {
+        root,
+        output: {
+          cssDir: "src/styles",
+          format: "woff2"
+        },
+        cos: {
+          cdnUrl: "https://cdn.example.com",
+          basePath: "/static/fonts/{version}"
+        }
+      } as any;
+
+      const fontGroupMap = new Map([
+        ["DemoFont", [
+          { config: { family: "DemoFont", name: "R400", weight: 400, style: "normal" }, size: 100, filePath: "", format: "woff2" }
+        ]]
+      ]) as any;
+
+      await generateFontCss(fontGroupMap, config, "1.2.3", "woff2");
+
+      const assetCssPath = path.join(root, "src/styles/font-assets/demo-font.css");
+      const indexCssPath = path.join(root, "src/styles/fonts.css");
+      const indexCss = fs.readFileSync(indexCssPath, "utf-8");
+
+      expect(fs.existsSync(assetCssPath)).toBe(true);
+      expect(fs.existsSync(indexCssPath)).toBe(true);
+      expect(indexCss).toContain("@import './font-assets/demo-font';");
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true });
+    }
+  });
 });

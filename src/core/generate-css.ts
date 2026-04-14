@@ -84,6 +84,10 @@ function toCssFontFormat(format: string): string {
   return cssFormatMap[normalized] || normalized;
 }
 
+function resolveStyleFormat(styleFormat?: StyleFormat): StyleFormat {
+  return styleFormat === "scss" ? "scss" : "css";
+}
+
 // 获取文件扩展名
 function getStyleExt(styleFormat: StyleFormat): string {
   return styleFormat === "scss" ? "scss" : "css";
@@ -106,7 +110,7 @@ export async function generateFontCss(
 ): Promise<void> {
   consola.info("生成字体样式文件...");
 
-  const styleFormat = config.output.styleFormat;
+  const styleFormat = resolveStyleFormat(config.output.styleFormat);
   const styleExt = getStyleExt(styleFormat);
 
   // 配置的目录（如 src/styles）
@@ -178,7 +182,7 @@ export async function generateFontCss(
  * ${styleFormat === "scss" ? `@use '@/${cssImportPath}/fonts' as *;` : `import '@/${cssImportPath}/fonts';`}
  */
 
-${fontFiles.map((f) => generateImport(`${FONT_ASSETS_DIR}/${f.replace(/\.(scss|css)$/, "")}`, config.output.styleFormat)).join("\n")}
+${fontFiles.map((f) => generateImport(`${FONT_ASSETS_DIR}/${f.replace(/\.(scss|css)$/, "")}`, styleFormat)).join("\n")}
 `;
 
   const fontsCssPath = path.join(outputDir, indexFileName);

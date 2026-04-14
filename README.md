@@ -58,6 +58,8 @@ export default defineConfig({
     output: {
       cssDir: "src/styles",
       format: "woff"
+      // styleFormat 可选，默认 "css"，如需可传 "scss"
+      // styleFormat: "scss"
     }
   },
   cos: {
@@ -98,7 +100,7 @@ import "@/styles/fonts";
 2. 扫描代码   → 递归扫描 src/ 目录
 3. 提取字符   → 提取中文、英文、数字、常用符号
 4. 生成子集   → 使用 fontmin 压缩并转换为 WOFF
-5. 生成 CSS  → 输出 font-*.scss 和 fonts.scss
+5. 生成 CSS  → 输出 font-*.css/scss 和 fonts.css/scss
 ```
 
 ## 输出结构
@@ -107,9 +109,9 @@ import "@/styles/fonts";
 项目目录/
 ├── src/styles/
 │   ├── font-assets/
-│   │   ├── alibaba-pu-hui-ti.scss   # 阿里普惠体（多字重）
-│   │   └── fonts.scss               # 汇总引入文件
-│   └── fonts.scss                  # 入口文件
+│   │   ├── alibaba-pu-hui-ti.css    # 阿里普惠体（多字重，默认 css）
+│   │   └── fonts.css                # 汇总引入文件
+│   └── fonts.css                   # 入口文件
 │
 └── node_modules/charbi-font/.cache/fonts/  # 字体缓存
     ├── subsets/                     # 字体子集（构建产物）
@@ -140,11 +142,11 @@ import "@/styles/fonts";
 
 ### `build.output`
 
-| 配置项        | 类型                         | 默认值         | 说明         |
-| ------------- | ---------------------------- | -------------- | ------------ |
-| `cssDir`      | `string`                     | `'src/styles'` | CSS 输出目录 |
-| `format`      | `'woff' \| 'woff2' \| 'ttf'` | `'woff'`       | 输出格式     |
-| `styleFormat` | `'scss' \| 'css'`            | `'scss'`       | 样式文件格式 |
+| 配置项        | 类型                         | 默认值         | 说明                 |
+| ------------- | ---------------------------- | -------------- | -------------------- |
+| `cssDir`      | `string`                     | `'src/styles'` | CSS 输出目录         |
+| `format`      | `'woff' \| 'woff2' \| 'ttf'` | `'woff'`       | 输出格式             |
+| `styleFormat` | `'scss' \| 'css'`            | `'css'`        | 样式文件格式（可选） |
 
 ### `build.cacheDir`
 
