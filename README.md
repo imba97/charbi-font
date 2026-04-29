@@ -1,6 +1,6 @@
 # charbi-font
 
-我早已麻痹！中文字体子集化工具，扫描代码提取字符，生成精简字体包。
+中文字体子集化工具，扫描代码提取字符，生成精简字体包。
 
 ## 特性
 
@@ -213,6 +213,10 @@ charbi build    # 仅构建（生成字体子集到缓存目录）
 charbi upload   # 仅上传（上传缓存目录中的字体到 CDN）
 charbi --mode production  # 使用 production 模式
 ```
+
+## 关于名称
+
+最开始让 AI 起名，我说可以造组合字，于是在一堆名称中我一眼看到了 `char + build = charbi`（你没有偷摸骂我吧？🤔）
 
 ## License
 
