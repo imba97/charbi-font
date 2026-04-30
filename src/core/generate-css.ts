@@ -1,4 +1,4 @@
-import type { FontConfig, ResolvedConfig, StyleFormat } from "../config/schema";
+import type { FontConfig, FontFaceDisplay, ResolvedConfig, StyleFormat } from "../config/schema";
 import type { FontGroupMap } from "../types/font-subset";
 import fs from "node:fs";
 import path from "node:path";
@@ -31,19 +31,25 @@ function toFontUrl(
   return `./fonts/${normalizeFamilyForFileName(font.family)}-${font.weight}.${extension}`;
 }
 
+function formatFontDisplayLine(fontDisplay?: FontFaceDisplay | false): string {
+  if (fontDisplay === undefined || fontDisplay === false) return "";
+  return `  font-display: ${fontDisplay};\n`;
+}
+
 // 生成单个 @font-face 声明
 function generateFontFace(
   family: string,
   weight: number,
   urlOrBase64: string,
   format: string,
-  style: "normal" | "italic" = "normal"
+  style: "normal" | "italic" = "normal",
+  fontDisplay?: FontFaceDisplay | false
 ): string {
+  const display = formatFontDisplayLine(fontDisplay);
   return `@font-face {
   font-family: '${family}';
   src: url('${urlOrBase64}') format('${format}');
-  font-display: swap;
-  font-weight: ${weight};
+${display}  font-weight: ${weight};
   font-style: ${style};
 }`;
 }
@@ -153,7 +159,8 @@ export async function generateFontCss(
         font.weight,
         fontUrl,
         toCssFontFormat(subsetFormat),
-        font.style || "normal"
+        font.style || "normal",
+        config.output.fontDisplay
       );
       cssContent += "\n\n";
 

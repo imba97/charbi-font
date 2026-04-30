@@ -142,11 +142,12 @@ import "@/styles/fonts";
 
 ### `build.output`
 
-| 配置项        | 类型                         | 默认值         | 说明                 |
-| ------------- | ---------------------------- | -------------- | -------------------- |
-| `cssDir`      | `string`                     | `'src/styles'` | CSS 输出目录         |
-| `format`      | `'woff' \| 'woff2' \| 'ttf'` | `'woff'`       | 输出格式             |
-| `styleFormat` | `'scss' \| 'css'`            | `'css'`        | 样式文件格式（可选） |
+| 配置项        | 类型                                                               | 默认值              | 说明                                                     |
+| ------------- | ------------------------------------------------------------------ | ------------------- | -------------------------------------------------------- |
+| `cssDir`      | `string`                                                           | `'src/styles'`      | CSS 输出目录                                             |
+| `format`      | `'woff' \| 'woff2' \| 'ttf'`                                       | `'woff'`            | 输出格式                                                 |
+| `styleFormat` | `'scss' \| 'css'`                                                  | `'css'`             | 样式文件格式（可选）                                     |
+| `fontDisplay` | `'auto' \| 'block' \| 'swap' \| 'fallback' \| 'optional' \| false` | 不写 `font-display` | 默认不写该行（浏览器按 `auto`）；需要旧行为可设 `'swap'` |
 
 ### `build.cacheDir`
 
@@ -162,7 +163,7 @@ export default defineConfig({
 
 ## 生成结果
 
-生成的 CSS 使用 `font-display: swap`：
+默认生成的 `@font-face` **不包含** `font-display`（避免默认 `swap` 带来的明显 FOUT）。可在 `build.output.fontDisplay` 中指定，例如 `'optional'` 或 `'swap'`：
 
 ```scss
 @font-face {

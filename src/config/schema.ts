@@ -58,6 +58,13 @@ export interface UploadConfig {
 // 样式文件格式
 export type StyleFormat = "scss" | "css";
 
+/**
+ * @font-face 的 font-display（与 CSS Fonts 一致）
+ * - 设为 `false`：不在生成的 CSS 中输出 `font-display`（浏览器默认 auto）
+ * - 不设：与 `false` 相同（默认不再使用历史上的 `swap`，避免明显 FOUT）
+ */
+export type FontFaceDisplay = "auto" | "block" | "swap" | "fallback" | "optional";
+
 // 输出配置
 export interface OutputConfig {
   // CSS 输出目录（相对于项目根目录，如 'src/styles'）
@@ -66,6 +73,12 @@ export interface OutputConfig {
   format: FontFormat;
   // 样式文件格式（scss 或 css），可选，默认 css
   styleFormat?: StyleFormat;
+  /**
+   * 生成的 @font-face 是否包含 font-display
+   * - 默认：不写该行（等价于浏览器 auto）
+   * - 需要与旧版一致的可显式设为 `'swap'`
+   */
+  fontDisplay?: FontFaceDisplay | false;
 }
 
 // 环境变量配置
