@@ -48,17 +48,18 @@
       "require": "./dist/client.cjs"
     },
     "./config": {
-      "import": "./dist/config/index.mjs",
-      "require": "./dist/config/index.cjs"
+      "import": "./dist/config.mjs",
+      "require": "./dist/config.cjs"
     },
-    "./config/loader": {
-      "import": "./dist/config/loader.mjs",
-      "require": "./dist/config/loader.cjs"
+    "./loader": {
+      "import": "./dist/loader.mjs",
+      "require": "./dist/loader.cjs"
     },
     "./vite": {
-      "import": "./dist/vite/index.mjs",
-      "require": "./dist/vite/index.cjs"
-    }
+      "import": "./dist/vite.mjs",
+      "require": "./dist/vite.cjs"
+    },
+    "./package.json": "./package.json"
   },
   "scripts": {
     "build": "vp pack",

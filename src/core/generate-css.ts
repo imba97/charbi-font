@@ -4,7 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 import consola from "consola";
 import { FONT_ASSETS_DIR } from "../config/schema";
-import { normalizeFamilyForFileName } from "../utils/font-name";
+import { resolveFontFileExtension, subsetOutputFileName } from "../utils/subset-font-file";
 
 // 生成字体 URL（COS 模式）
 function toFontUrl(
@@ -19,7 +19,7 @@ function toFontUrl(
     if (!cos.basePath) {
       throw new Error("COS 配置缺少 basePath，请在 fonts.config.ts 中设置 cos.basePath");
     }
-    const filename = `${normalizeFamilyForFileName(font.family)}-${font.weight}.${extension}`;
+    const filename = subsetOutputFileName(font, extension);
     const basePath = cos.basePath.replace("{version}", version);
 
     // 保留协议头（https://），仅规范主机后路径的斜杠
@@ -28,7 +28,7 @@ function toFontUrl(
     return `${cleanCdn}/${cleanPath}/${filename}`;
   }
   // 本地路径
-  return `./fonts/${normalizeFamilyForFileName(font.family)}-${font.weight}.${extension}`;
+  return `./fonts/${subsetOutputFileName(font, extension)}`;
 }
 
 function formatFontDisplayLine(fontDisplay?: FontFaceDisplay | false): string {
@@ -56,22 +56,6 @@ ${display}  font-weight: ${weight};
 
 function normalizeFormat(format: string): string {
   return format.toLowerCase();
-}
-
-function toFontExtension(format: string): string {
-  const normalized = normalizeFormat(format);
-  const extensionMap: Record<string, string> = {
-    truetype: "ttf",
-    ttf: "ttf",
-    opentype: "otf",
-    otf: "otf",
-    "embedded-opentype": "eot",
-    eot: "eot",
-    woff: "woff",
-    woff2: "woff2",
-    svg: "svg"
-  };
-  return extensionMap[normalized] || normalized;
 }
 
 function toCssFontFormat(format: string): string {
@@ -153,7 +137,7 @@ export async function generateFontCss(
     for (const subset of subsets) {
       const { config: font, size } = subset;
       const subsetFormat = subset.format || subsetExtension;
-      const fontUrl = toFontUrl(config, font, version, toFontExtension(subsetFormat));
+      const fontUrl = toFontUrl(config, font, version, resolveFontFileExtension(subsetFormat));
       cssContent += generateFontFace(
         family,
         font.weight,

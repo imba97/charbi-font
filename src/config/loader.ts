@@ -30,14 +30,14 @@ export function getVersion(userVersion?: string): string {
 }
 
 // 获取缓存目录
-export function getCacheDir(userCacheDir?: string): string {
+export function getCacheDir(userCacheDir?: string, projectRoot?: string): string {
+  const root = projectRoot ?? getProjectRoot();
   // 如果用户配置了缓存目录，使用用户配置（相对于项目根目录）
   if (userCacheDir) {
-    return path.isAbsolute(userCacheDir) ? userCacheDir : path.join(getProjectRoot(), userCacheDir);
+    return path.isAbsolute(userCacheDir) ? userCacheDir : path.join(root, userCacheDir);
   }
   // 默认使用 node_modules/charbi-font/.cache/fonts
   // 从项目根目录向上查找 node_modules/charbi-font
-  const root = getProjectRoot();
   const nodeModulesCharbi = path.join(root, "node_modules", "charbi-font");
   return path.join(nodeModulesCharbi, ".cache/fonts");
 }
@@ -45,15 +45,17 @@ export function getCacheDir(userCacheDir?: string): string {
 // 加载环境变量文件
 export function loadEnvFile(
   mode: "development" | "production",
-  userEnv?: BuildConfig["env"]
+  userEnv?: BuildConfig["env"],
+  projectRoot?: string
 ): void {
+  const root = projectRoot ?? getProjectRoot();
   const defaultEnv = {
     development: ".env.development",
     production: ".env.production"
   };
 
   const envFile = userEnv?.[mode] || defaultEnv[mode];
-  const envPath = path.join(getProjectRoot(), envFile);
+  const envPath = path.join(root, envFile);
 
   if (fs.existsSync(envPath)) {
     const content = fs.readFileSync(envPath, "utf-8");
@@ -66,8 +68,10 @@ export function loadEnvFile(
 
 // 加载配置
 export async function loadConfig(
-  mode: "development" | "production" = "development"
+  mode: "development" | "production" = "development",
+  projectRoot?: string
 ): Promise<ResolvedConfig> {
+  const root = projectRoot ?? getProjectRoot();
   const result = await unconfigLoadConfig<UserConfig>({
     sources: [
       {
@@ -75,14 +79,14 @@ export async function loadConfig(
         extensions: ["ts", "mts", "cts", "js", "mjs", "cjs", "json", "json5"]
       }
     ],
-    cwd: getProjectRoot(),
+    cwd: root,
     defaults: {}
   });
 
   const userConfig = result.config || {};
 
   // 加载环境变量文件
-  loadEnvFile(mode, userConfig.build?.env);
+  loadEnvFile(mode, userConfig.build?.env, root);
 
   // 合并构建配置
   const mergedBuild = defu(userConfig.build || {}, defaultConfig) as BuildConfig;
@@ -102,8 +106,8 @@ export async function loadConfig(
       concurrency: userConfig.upload?.concurrency ?? 5
     },
     cos: userConfig.cos || {},
-    root: getProjectRoot(),
-    cacheDir: getCacheDir(userConfig.build?.cacheDir),
+    root,
+    cacheDir: getCacheDir(userConfig.build?.cacheDir, root),
     version: mergedBuild.version,
     env: mergedBuild.env || {},
     mode

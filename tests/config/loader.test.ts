@@ -10,7 +10,7 @@ afterEach(() => {
   process.chdir(originalCwd);
 });
 
-describe("config/loader", () => {
+describe("loader", () => {
   it("getProjectRoot should use caller project cwd", () => {
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "font-builder-root-"));
     process.chdir(tempDir);

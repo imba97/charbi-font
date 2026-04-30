@@ -22,19 +22,55 @@ describe("generateFontCss format mapping", () => {
       } as any;
 
       const fontGroupMap = new Map([
-        ["DemoFont", [
-          { config: { family: "DemoFont", name: "R400", weight: 400, style: "normal" }, size: 100, filePath: "", format: "truetype" },
-          { config: { family: "DemoFont", name: "R500", weight: 500, style: "normal" }, size: 100, filePath: "", format: "opentype" },
-          { config: { family: "DemoFont", name: "R600", weight: 600, style: "normal" }, size: 100, filePath: "", format: "embedded-opentype" },
-          { config: { family: "DemoFont", name: "R700", weight: 700, style: "normal" }, size: 100, filePath: "", format: "woff" },
-          { config: { family: "DemoFont", name: "R800", weight: 800, style: "normal" }, size: 100, filePath: "", format: "woff2" },
-          { config: { family: "DemoFont", name: "R900", weight: 900, style: "normal" }, size: 100, filePath: "", format: "svg" }
-        ]]
+        [
+          "DemoFont",
+          [
+            {
+              config: { family: "DemoFont", name: "R400", weight: 400, style: "normal" },
+              size: 100,
+              filePath: "",
+              format: "truetype"
+            },
+            {
+              config: { family: "DemoFont", name: "R500", weight: 500, style: "normal" },
+              size: 100,
+              filePath: "",
+              format: "opentype"
+            },
+            {
+              config: { family: "DemoFont", name: "R600", weight: 600, style: "normal" },
+              size: 100,
+              filePath: "",
+              format: "embedded-opentype"
+            },
+            {
+              config: { family: "DemoFont", name: "R700", weight: 700, style: "normal" },
+              size: 100,
+              filePath: "",
+              format: "woff"
+            },
+            {
+              config: { family: "DemoFont", name: "R800", weight: 800, style: "normal" },
+              size: 100,
+              filePath: "",
+              format: "woff2"
+            },
+            {
+              config: { family: "DemoFont", name: "R900", weight: 900, style: "normal" },
+              size: 100,
+              filePath: "",
+              format: "svg"
+            }
+          ]
+        ]
       ]) as any;
 
       await generateFontCss(fontGroupMap, config, "1.2.3", "woff2");
 
-      const css = fs.readFileSync(path.join(root, "src/styles/font-assets/demo-font.scss"), "utf-8");
+      const css = fs.readFileSync(
+        path.join(root, "src/styles/font-assets/demo-font.scss"),
+        "utf-8"
+      );
 
       expect(css).toContain("DemoFont-400.ttf') format('truetype')");
       expect(css).toContain("DemoFont-500.otf') format('opentype')");
@@ -63,9 +99,17 @@ describe("generateFontCss format mapping", () => {
       } as any;
 
       const fontGroupMap = new Map([
-        ["DemoFont", [
-          { config: { family: "DemoFont", name: "R400", weight: 400, style: "normal" }, size: 100, filePath: "", format: "woff2" }
-        ]]
+        [
+          "DemoFont",
+          [
+            {
+              config: { family: "DemoFont", name: "R400", weight: 400, style: "normal" },
+              size: 100,
+              filePath: "",
+              format: "woff2"
+            }
+          ]
+        ]
       ]) as any;
 
       await generateFontCss(fontGroupMap, config, "1.2.3", "woff2");

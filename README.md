@@ -175,21 +175,42 @@ export default defineConfig({
 
 ## Vite 插件
 
-配合 Vite 使用时，可引入 `virtual:charbi-font` 获取构建版本号：
+配合 Vite 时使用默认插件 **`CharbiFont()`**（无参数）。版本号由 **`resolveBuildFontVersion`** 解析（`VITE_FONT_BUILD_VERSION` → 项目根 `package.json` → `npm_package_version` → `0.0.1`），与虚拟模块中的 `FONT_BUILD_VERSION` 一致。
+
+虚拟模块 **`virtual:charbi-font`** 导出：
+
+- **`FONT_BUILD_VERSION`**：上述解析结果。
+- **`BUILD_FONT_FACES`**：由 `fonts.config.ts` 的 `build.fonts` 推导，每项含微信小程序 **`uni.loadFontFace`** 所需的 `family`、`file`（与 CDN 子集文件名一致）、`weight`、`style`、`variant`。
+- **`FONT_ASSET_BASE_URL`**：当配置了 `cos.cdnUrl` 与 `cos.basePath` 时，为替换 `{version}` 后的 CDN 路径前缀（不含文件名）；否则为 `undefined`。拼接字体 URL：`${FONT_ASSET_BASE_URL}/${file}`。
+
+业务侧无需再手写一份字重与文件名对照表。
 
 ```typescript
-import { FONT_BUILD_VERSION } from "virtual:charbi-font";
+import { FONT_ASSET_BASE_URL, FONT_BUILD_VERSION, BUILD_FONT_FACES } from "virtual:charbi-font";
 
-console.log(FONT_BUILD_VERSION); // "1.0.0"
+for (const face of BUILD_FONT_FACES) {
+  const base = FONT_ASSET_BASE_URL;
+  if (!base) continue;
+  uni.loadFontFace({
+    global: true,
+    family: face.family,
+    source: `url("${base}/${face.file}")`,
+    desc: {
+      style: face.style,
+      weight: face.weight,
+      variant: face.variant
+    }
+  });
+}
 ```
 
 在 `vite.config.ts` 中启用插件：
 
 ```typescript
-import charbiFont from "charbi-font/vite";
+import CharbiFont from "charbi-font/vite";
 
 export default defineConfig({
-  plugins: [charbiFont()]
+  plugins: [CharbiFont()]
 });
 ```
 
@@ -198,13 +219,13 @@ export default defineConfig({
 如果你在业务代码中直接使用虚拟模块：
 
 ```ts
-import { FONT_BUILD_VERSION } from "virtual:charbi-font";
+import { BUILD_FONT_FACES, FONT_BUILD_VERSION } from "virtual:charbi-font";
 ```
 
-请在项目中启用 `charbi-font/client` 类型入口（二选一）：
+虚拟模块类型在项目中启用 **`charbi-font/client`** 即可（二选一）：
 
 1. `/// <reference types="charbi-font/client" />`（推荐放在 `env.d.ts`）
-2. `tsconfig.json` -> `compilerOptions.types` 中添加 `"charbi-font/client"`
+2. `tsconfig.json` → `compilerOptions.types` 中添加 `"charbi-font/client"`
 
 ## 使用命令
 

@@ -8,7 +8,7 @@ import { generateFontCss } from "../core/generate-css";
 import { collectChars } from "../core/scan";
 import { generateFontSubset } from "../core/subset";
 import { uploadToCDN } from "../uploader";
-import { getVersion, loadConfig } from "../config/loader";
+import { getVersion, loadConfig } from "../config";
 import consola from "consola";
 
 interface BuildOptions {
@@ -28,7 +28,7 @@ const __dirname = path.dirname(
     }
   })()
 );
-const pkg = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../package.json"), "utf-8"));
+const pkg = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../../package.json"), "utf-8"));
 
 const cli = new CAC("charbi");
 
