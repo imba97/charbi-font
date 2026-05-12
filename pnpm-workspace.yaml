@@ -1,4 +1,3 @@
-onlyBuiltDependencies:
-  - esbuild
-  - simple-git-hooks
-  - ttf2woff2
+allowBuilds:
+  simple-git-hooks: true
+  ttf2woff2: true
