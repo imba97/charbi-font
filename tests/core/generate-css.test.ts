@@ -72,6 +72,7 @@ describe("generateFontCss format mapping", () => {
         "utf-8"
       );
 
+      expect(css).toContain("由 @uiron/charbi 自动生成");
       expect(css).toContain("DemoFont-400.ttf') format('truetype')");
       expect(css).toContain("DemoFont-500.otf') format('opentype')");
       expect(css).toContain("DemoFont-600.eot') format('embedded-opentype')");

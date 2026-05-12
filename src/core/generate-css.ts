@@ -122,7 +122,7 @@ export async function generateFontCss(
     const cssImportPath = config.output.cssDir.replace(/^src\//, "");
     let cssContent = `/**
  * ${family} 字体
- * 由 charbi-font 自动生成
+ * 由 @uiron/charbi 自动生成
  *
  * 使用方式：
  * ${styleFormat === "scss" ? `@use '@/${cssImportPath}/${FONT_ASSETS_DIR}/${family.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase()}' as *;` : `import '@/${cssImportPath}/${FONT_ASSETS_DIR}/${family.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase()}';`}
@@ -165,7 +165,7 @@ export async function generateFontCss(
   const indexFileName = `fonts.${styleExt}`;
   const indexCssContent = `/**
  * 字体汇总文件
- * 由 charbi-font 自动生成
+ * 由 @uiron/charbi 自动生成
  *
  * 此文件包含所有字体的 @font-face 声明
  *

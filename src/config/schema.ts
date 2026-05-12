@@ -99,7 +99,7 @@ export interface BuildConfig {
   version?: string;
   // 环境变量文件配置
   env?: EnvConfig;
-  // 缓存目录（可选，默认为 node_modules/charbi-font/.cache/fonts）
+  // 缓存目录（可选，默认为 node_modules 下与本包 package.json name 对应的安装目录/.cache/fonts）
   cacheDir?: string;
 }
 

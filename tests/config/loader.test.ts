@@ -2,7 +2,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vite-plus/test";
-import { getProjectRoot, getVersion } from "../../src/config/loader";
+import { getCacheDir, getProjectRoot, getVersion } from "../../src/config/loader";
 
 const originalCwd = process.cwd();
 
@@ -16,6 +16,13 @@ describe("loader", () => {
     process.chdir(tempDir);
 
     expect(fs.realpathSync(getProjectRoot())).toBe(fs.realpathSync(tempDir));
+  });
+
+  it("getCacheDir without userCacheDir resolves to scoped package under node_modules", () => {
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "font-builder-cache-"));
+    process.chdir(tempDir);
+    const dir = getCacheDir(undefined, tempDir);
+    expect(dir).toBe(path.join(tempDir, "node_modules", "@uiron", "charbi", ".cache", "fonts"));
   });
 
   it("getVersion should read version from caller package.json", () => {

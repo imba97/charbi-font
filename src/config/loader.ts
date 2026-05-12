@@ -2,10 +2,19 @@ import type { BuildConfig, ResolvedConfig, UserConfig } from "./schema";
 import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
+import pkg from "../../package.json" with { type: "json" };
 import { createDefu } from "defu";
 import { loadConfig as unconfigLoadConfig } from "unconfig";
 import { defaultConfig } from "./schema";
 import { parseEnv } from "node:util";
+
+/** 将 npm 包名转为 node_modules 下的路径段，如 @uiron/charbi → ['@uiron','charbi'] */
+function npmPackageNameToNodeModulesSegments(name: string): string[] {
+  if (!name.startsWith("@")) return [name];
+  const i = name.indexOf("/", 1);
+  if (i === -1) return [name];
+  return [name.slice(0, i), name.slice(i + 1)];
+}
 
 const defu = createDefu((obj, key, value) => {
   // 数组不合并，直接覆盖
@@ -36,10 +45,10 @@ export function getCacheDir(userCacheDir?: string, projectRoot?: string): string
   if (userCacheDir) {
     return path.isAbsolute(userCacheDir) ? userCacheDir : path.join(root, userCacheDir);
   }
-  // 默认使用 node_modules/charbi-font/.cache/fonts
-  // 从项目根目录向上查找 node_modules/charbi-font
-  const nodeModulesCharbi = path.join(root, "node_modules", "charbi-font");
-  return path.join(nodeModulesCharbi, ".cache/fonts");
+  // 默认使用 node_modules/<scope>/<pkg>/.cache/fonts（与本包 package.json name 一致）
+  const installSegs = npmPackageNameToNodeModulesSegments(pkg.name);
+  const nodeModulesPkg = path.join(root, "node_modules", ...installSegs);
+  return path.join(nodeModulesPkg, ".cache/fonts");
 }
 
 // 加载环境变量文件

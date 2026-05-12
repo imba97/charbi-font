@@ -1,4 +1,4 @@
-# charbi-font
+# @uiron/charbi
 
 中文字体子集化工具，扫描代码提取字符，生成精简字体包。
 
@@ -13,16 +13,12 @@
 ## 安装
 
 ```bash
-npm install charbi-font
-# 或
-pnpm add charbi-font
+pnpm add @uiron/charbi
 ```
 
 如需 CDN 上传功能，需安装 `cos-nodejs-sdk-v5`：
 
 ```bash
-npm install cos-nodejs-sdk-v5
-# 或
 pnpm add cos-nodejs-sdk-v5
 ```
 
@@ -33,7 +29,7 @@ pnpm add cos-nodejs-sdk-v5
 在项目根目录创建 `fonts.config.ts`：
 
 ```typescript
-import { defineConfig } from "charbi-font/config";
+import { defineConfig } from "@uiron/charbi/config";
 
 export default defineConfig({
   build: {
@@ -113,7 +109,7 @@ import "@/styles/fonts";
 │   │   └── fonts.css                # 汇总引入文件
 │   └── fonts.css                   # 入口文件
 │
-└── node_modules/charbi-font/.cache/fonts/  # 字体缓存
+└── node_modules/@uiron/charbi/.cache/fonts/  # 字体缓存
     ├── subsets/                     # 字体子集（构建产物）
     └── AlibabaPuHuiTi-400.ttf       # 原始字体缓存
 ```
@@ -151,7 +147,7 @@ import "@/styles/fonts";
 
 ### `build.cacheDir`
 
-自定义缓存目录（默认：`node_modules/charbi-font/.cache/fonts`）：
+自定义缓存目录（默认：`node_modules/@uiron/charbi/.cache/fonts`）：
 
 ```typescript
 export default defineConfig({
@@ -176,6 +172,8 @@ export default defineConfig({
 ## Vite 插件
 
 配合 Vite 时使用默认插件 **`CharbiFont()`**（无参数）。版本号由 **`resolveBuildFontVersion`** 解析（`VITE_FONT_BUILD_VERSION` → 项目根 `package.json` → `npm_package_version` → `0.0.1`），与虚拟模块中的 `FONT_BUILD_VERSION` 一致。
+
+虚拟模块 ID 仍为 **`virtual:charbi-font`**（与 npm 包名独立，避免破坏已有引用）。从 npm 安装与在代码里 `import` 插件、配置子路径时使用 **`@uiron/charbi`**。
 
 虚拟模块 **`virtual:charbi-font`** 导出：
 
@@ -207,7 +205,7 @@ for (const face of BUILD_FONT_FACES) {
 在 `vite.config.ts` 中启用插件：
 
 ```typescript
-import CharbiFont from "charbi-font/vite";
+import CharbiFont from "@uiron/charbi/vite";
 
 export default defineConfig({
   plugins: [CharbiFont()]
@@ -222,10 +220,10 @@ export default defineConfig({
 import { BUILD_FONT_FACES, FONT_BUILD_VERSION } from "virtual:charbi-font";
 ```
 
-虚拟模块类型在项目中启用 **`charbi-font/client`** 即可（二选一）：
+虚拟模块类型在项目中启用 **`@uiron/charbi/client`** 即可（二选一）：
 
-1. `/// <reference types="charbi-font/client" />`（推荐放在 `env.d.ts`）
-2. `tsconfig.json` → `compilerOptions.types` 中添加 `"charbi-font/client"`
+1. `/// <reference types="@uiron/charbi/client" />`（推荐放在 `env.d.ts`）
+2. `tsconfig.json` → `compilerOptions.types` 中添加 `"@uiron/charbi/client"`
 
 ## 使用命令
 
