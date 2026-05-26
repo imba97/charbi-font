@@ -173,9 +173,9 @@ export default defineConfig({
 
 配合 Vite 时使用默认插件 **`CharbiFont()`**（无参数）。版本号由 **`resolveBuildFontVersion`** 解析（`VITE_FONT_BUILD_VERSION` → 项目根 `package.json` → `npm_package_version` → `0.0.1`），与虚拟模块中的 `FONT_BUILD_VERSION` 一致。
 
-虚拟模块 ID 仍为 **`virtual:charbi-font`**（与 npm 包名独立，避免破坏已有引用）。从 npm 安装与在代码里 `import` 插件、配置子路径时使用 **`@uiron/charbi`**。
+虚拟模块 ID 为 **`virtual:charbi`**。从 npm 安装与在代码里 `import` 插件、配置子路径时使用 **`@uiron/charbi`**。
 
-虚拟模块 **`virtual:charbi-font`** 导出：
+虚拟模块 **`virtual:charbi`** 导出：
 
 - **`FONT_BUILD_VERSION`**：上述解析结果。
 - **`BUILD_FONT_FACES`**：由 `fonts.config.ts` 的 `build.fonts` 推导，每项含微信小程序 **`uni.loadFontFace`** 所需的 `family`、`file`（与 CDN 子集文件名一致）、`weight`、`style`、`variant`。
@@ -184,7 +184,7 @@ export default defineConfig({
 业务侧无需再手写一份字重与文件名对照表。
 
 ```typescript
-import { FONT_ASSET_BASE_URL, FONT_BUILD_VERSION, BUILD_FONT_FACES } from "virtual:charbi-font";
+import { FONT_ASSET_BASE_URL, FONT_BUILD_VERSION, BUILD_FONT_FACES } from "virtual:charbi";
 
 for (const face of BUILD_FONT_FACES) {
   const base = FONT_ASSET_BASE_URL;
@@ -217,7 +217,7 @@ export default defineConfig({
 如果你在业务代码中直接使用虚拟模块：
 
 ```ts
-import { BUILD_FONT_FACES, FONT_BUILD_VERSION } from "virtual:charbi-font";
+import { BUILD_FONT_FACES, FONT_BUILD_VERSION } from "virtual:charbi";
 ```
 
 虚拟模块类型在项目中启用 **`@uiron/charbi/client`** 即可（二选一）：

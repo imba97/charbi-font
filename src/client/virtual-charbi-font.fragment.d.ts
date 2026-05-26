@@ -1,5 +1,5 @@
 /** 打包后追加进 client.d.ts；字段需与 ./types.ts 的 CharbiFontFaceDescriptor 保持一致 */
-declare module "virtual:charbi-font" {
+declare module "virtual:charbi" {
   export interface CharbiFontFaceDescriptor {
     readonly family: string;
     readonly file: string;

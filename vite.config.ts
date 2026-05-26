@@ -8,7 +8,7 @@ function mergeVirtualCharbiFontClientDts(): {
   closeBundle(): void;
 } {
   return {
-    name: "merge-virtual-charbi-font-client-dts",
+    name: "merge-virtual-charbi-client-dts",
     closeBundle() {
       const fragment = path.resolve("src/client/virtual-charbi-font.fragment.d.ts");
       if (!fs.existsSync(fragment)) return;
@@ -17,7 +17,7 @@ function mergeVirtualCharbiFontClientDts(): {
         const file = path.resolve("dist", name);
         if (!fs.existsSync(file)) continue;
         const cur = fs.readFileSync(file, "utf8");
-        if (cur.includes("virtual:charbi-font")) continue;
+        if (cur.includes("virtual:charbi")) continue;
         fs.appendFileSync(file, `\n${text}`);
       }
     }

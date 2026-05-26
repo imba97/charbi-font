@@ -54,16 +54,16 @@ export default function CharbiFont(): VitePluginLike {
   let viteRoot = process.cwd();
 
   return {
-    name: "virtual-charbi-font",
+    name: "virtual-charbi",
     configResolved(config) {
       viteRoot = config.root;
     },
     resolveId(id: string) {
-      if (id === "virtual:charbi-font") return "\0virtual:charbi-font";
+      if (id === "virtual:charbi") return "\0virtual:charbi";
       return null;
     },
     async load(id: string) {
-      if (id !== "\0virtual:charbi-font") return null;
+      if (id !== "\0virtual:charbi") return null;
 
       const mode = process.env.NODE_ENV === "production" ? "production" : "development";
       const config = await loadConfig(mode, viteRoot);
