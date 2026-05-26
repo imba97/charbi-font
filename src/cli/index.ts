@@ -28,7 +28,7 @@ const __dirname = path.dirname(
     }
   })()
 );
-const pkg = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../../package.json"), "utf-8"));
+const pkg = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../package.json"), "utf-8"));
 
 const cli = new CAC("charbi");
 
