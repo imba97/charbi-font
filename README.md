@@ -1,22 +1,24 @@
 # @uiron/charbi
 
-中文字体子集化工具，扫描代码提取字符，生成精简字体包。
+中文字体子集化工具。扫描项目源码提取字符，构建精简字体文件，并可按版本上传到 CDN。
 
 ## 特性
 
-- ✂️ **字体子集化** — 仅包含代码中实际使用的字符
-- 📁 **代码扫描** — 递归扫描源码文件，提取字符使用情况
-- 📦 **多字重合并** — 同一字体的多个字重合并到一个文件
-- ☁️ **CDN 上传** — 可上传到 CDN（如腾讯云 COS）
-- ⚡ **本地缓存** — 字体文件本地缓存，避免重复下载
+- **按需子集化**：只保留代码中实际使用的字符，减少字体体积
+- **多目录多后缀扫描**：支持按 `srcDir` + `extensions` 精准控制扫描范围
+- **多字重统一管理**：同一字体家族可配置多个字重并统一输出
+- **可选 CDN 上传**：支持上传到腾讯云 COS 等对象存储
+- **构建缓存复用**：复用本地缓存，减少重复下载与重复处理
 
 ## 安装
+
+安装主包：
 
 ```bash
 pnpm add @uiron/charbi
 ```
 
-如需 CDN 上传功能，需安装 `cos-nodejs-sdk-v5`：
+如果要使用 CDN 上传功能，再安装 COS SDK：
 
 ```bash
 pnpm add cos-nodejs-sdk-v5
@@ -28,7 +30,7 @@ pnpm add cos-nodejs-sdk-v5
 
 在项目根目录创建 `fonts.config.ts`：
 
-```typescript
+```ts
 import { defineConfig } from "@uiron/charbi/config";
 
 export default defineConfig({
@@ -54,7 +56,7 @@ export default defineConfig({
     output: {
       cssDir: "src/styles",
       format: "woff"
-      // styleFormat 可选，默认 "css"，如需可传 "scss"
+      // styleFormat 可选 默认为 "css"
       // styleFormat: "scss"
     }
   },
@@ -70,17 +72,24 @@ export default defineConfig({
 ### 2. 执行构建和上传
 
 ```bash
-charbi          # 构建 + 上传
-charbi build    # 仅构建（生成字体子集）
-charbi upload   # 仅上传（上传已构建的字体）
+charbi
+charbi build
+charbi upload
 ```
+
+- `charbi`：构建并上传
+- `charbi build`：仅构建子集字体
+- `charbi upload`：仅上传已构建产物
 
 ### 3. 引入字体
 
-```typescript
-// main.ts 或 App.vue
+在入口文件中引入生成的样式入口：
+
+```ts
 import "@/styles/fonts";
 ```
+
+业务中按正常方式声明字体：
 
 ```css
 .my-text {
@@ -91,75 +100,76 @@ import "@/styles/fonts";
 
 ## 构建流程
 
-```
-1. 下载字体   → 从 COS 下载字体源文件并缓存
-2. 扫描代码   → 递归扫描 src/ 目录
-3. 提取字符   → 提取中文、英文、数字、常用符号
-4. 生成子集   → 使用 fontmin 压缩并转换为 WOFF
-5. 生成 CSS  → 输出 font-*.css/scss 和 fonts.css/scss
+```text
+1 下载字体   -> 下载并缓存字体源文件
+2 扫描代码   -> 按目录和后缀扫描源码
+3 提取字符   -> 提取中文 英文 数字 常用符号
+4 生成子集   -> 使用 fontmin 产出目标格式字体
+5 生成样式   -> 输出 font-*.css 或 font-*.scss 与 fonts 汇总文件
 ```
 
 ## 输出结构
 
-```
+```text
 项目目录/
 ├── src/styles/
 │   ├── font-assets/
-│   │   ├── alibaba-pu-hui-ti.css    # 阿里普惠体（多字重，默认 css）
-│   │   └── fonts.css                # 汇总引入文件
-│   └── fonts.css                   # 入口文件
-│
-└── node_modules/@uiron/charbi/.cache/fonts/  # 字体缓存
-    ├── subsets/                     # 字体子集（构建产物）
-    └── AlibabaPuHuiTi-400.ttf       # 原始字体缓存
+│   │   ├── alibaba-pu-hui-ti.css   # 字体家族样式
+│   │   └── fonts.css               # 汇总引入文件
+│   └── fonts.css                   # 业务侧入口文件
+└── node_modules/@uiron/charbi/.cache/fonts/
+    ├── subsets/                    # 子集字体构建产物
+    └── AlibabaPuHuiTi-400.ttf      # 原始字体缓存
 ```
 
 ## 配置说明
 
 ### `build.scan`
 
-| 配置项       | 类型                 | 默认值    | 说明                       |
-| ------------ | -------------------- | --------- | -------------------------- |
-| `srcDir`     | `string[]`           | `['src']` | 扫描的目录                 |
-| `extensions` | `string[]`           | 上方列表  | 扫描的文件类型             |
-| `extraText`  | `string \| string[]` | —         | 额外包含的字符（所有字体） |
+| 配置项       | 类型                 | 默认值           | 说明                     |
+| ------------ | -------------------- | ---------------- | ------------------------ |
+| `srcDir`     | `string[]`           | `["src"]`        | 扫描目录列表             |
+| `extensions` | `string[]`           | 示例中的默认列表 | 扫描的文件后缀           |
+| `extraText`  | `string \| string[]` | -                | 所有字体都额外包含的字符 |
 
 ### `build.fonts[]`
 
-| 配置项      | 类型                         | 必填 | 说明                         |
-| ----------- | ---------------------------- | ---- | ---------------------------- |
-| `family`    | `string`                     | 是   | 字体系列名（用于分组）       |
-| `name`      | `string`                     | 是   | 显示名称                     |
-| `weight`    | `number`                     | 是   | 字重                         |
-| `url`       | `string`                     | 是   | 字体源地址                   |
-| `style`     | `'normal' \| 'italic'`       | 否   | 字体样式                     |
-| `format`    | `'woff' \| 'woff2' \| 'ttf'` | 否   | 覆盖全局格式                 |
-| `extraText` | `string \| string[]`         | 否   | 额外包含的字符（仅当前字体） |
+| 配置项      | 类型                         | 必填 | 说明                     |
+| ----------- | ---------------------------- | ---- | ------------------------ |
+| `family`    | `string`                     | 是   | 字体家族名 用于分组      |
+| `name`      | `string`                     | 是   | 字体显示名               |
+| `weight`    | `number`                     | 是   | 字重                     |
+| `url`       | `string`                     | 是   | 字体源文件地址           |
+| `style`     | `"normal" \| "italic"`       | 否   | 字体样式                 |
+| `format`    | `"woff" \| "woff2" \| "ttf"` | 否   | 覆盖全局输出格式         |
+| `extraText` | `string \| string[]`         | 否   | 仅当前字体额外包含的字符 |
 
 ### `build.output`
 
-| 配置项        | 类型                                                               | 默认值              | 说明                                                     |
-| ------------- | ------------------------------------------------------------------ | ------------------- | -------------------------------------------------------- |
-| `cssDir`      | `string`                                                           | `'src/styles'`      | CSS 输出目录                                             |
-| `format`      | `'woff' \| 'woff2' \| 'ttf'`                                       | `'woff'`            | 输出格式                                                 |
-| `styleFormat` | `'scss' \| 'css'`                                                  | `'css'`             | 样式文件格式（可选）                                     |
-| `fontDisplay` | `'auto' \| 'block' \| 'swap' \| 'fallback' \| 'optional' \| false` | 不写 `font-display` | 默认不写该行（浏览器按 `auto`）；需要旧行为可设 `'swap'` |
+| 配置项        | 类型                                                               | 默认值         | 说明                    |
+| ------------- | ------------------------------------------------------------------ | -------------- | ----------------------- |
+| `cssDir`      | `string`                                                           | `"src/styles"` | 样式输出目录            |
+| `format`      | `"woff" \| "woff2" \| "ttf"`                                       | `"woff"`       | 子集字体格式            |
+| `styleFormat` | `"scss" \| "css"`                                                  | `"css"`        | 样式文件格式            |
+| `fontDisplay` | `"auto" \| "block" \| "swap" \| "fallback" \| "optional" \| false` | 默认不写该属性 | 是否输出 `font-display` |
 
 ### `build.cacheDir`
 
-自定义缓存目录（默认：`node_modules/@uiron/charbi/.cache/fonts`）：
+缓存目录默认值：`node_modules/@uiron/charbi/.cache/fonts`。  
+也可在配置中自定义：
 
-```typescript
+```ts
 export default defineConfig({
   build: {
-    cacheDir: ".cache/fonts" // 相对于项目根目录
+    cacheDir: ".cache/fonts"
   }
 });
 ```
 
 ## 生成结果
 
-默认生成的 `@font-face` **不包含** `font-display`（避免默认 `swap` 带来的明显 FOUT）。可在 `build.output.fontDisplay` 中指定，例如 `'optional'` 或 `'swap'`：
+默认生成的 `@font-face` **不包含** `font-display`，以避免默认 `swap` 引发明显 FOUT。  
+如果需要可在 `build.output.fontDisplay` 中指定，例如 `"optional"` 或 `"swap"`。
 
 ```scss
 @font-face {
@@ -171,19 +181,30 @@ export default defineConfig({
 
 ## Vite 插件
 
-配合 Vite 时使用默认插件 **`CharbiFont()`**（无参数）。版本号由 **`resolveBuildFontVersion`** 解析（`VITE_FONT_BUILD_VERSION` → 项目根 `package.json` → `npm_package_version` → `0.0.1`），与虚拟模块中的 `FONT_BUILD_VERSION` 一致。
+在 Vite 中使用默认插件 `CharbiFont()`（无参数）：
 
-虚拟模块 ID 为 **`virtual:charbi`**。从 npm 安装与在代码里 `import` 插件、配置子路径时使用 **`@uiron/charbi`**。
+```ts
+import { defineConfig } from "vite";
+import CharbiFont from "@uiron/charbi/vite";
 
-虚拟模块 **`virtual:charbi`** 导出：
+export default defineConfig({
+  plugins: [CharbiFont()]
+});
+```
 
-- **`FONT_BUILD_VERSION`**：上述解析结果。
-- **`BUILD_FONT_FACES`**：由 `fonts.config.ts` 的 `build.fonts` 推导，每项含微信小程序 **`uni.loadFontFace`** 所需的 `family`、`file`（与 CDN 子集文件名一致）、`weight`、`style`、`variant`。
-- **`FONT_ASSET_BASE_URL`**：当配置了 `cos.cdnUrl` 与 `cos.basePath` 时，为替换 `{version}` 后的 CDN 路径前缀（不含文件名）；否则为 `undefined`。拼接字体 URL：`${FONT_ASSET_BASE_URL}/${file}`。
+版本号解析规则与虚拟模块中的 `FONT_BUILD_VERSION` 一致：
 
-业务侧无需再手写一份字重与文件名对照表。
+`VITE_FONT_BUILD_VERSION` -> 项目根 `package.json` -> `npm_package_version` -> `0.0.1`
 
-```typescript
+虚拟模块 ID 为 `virtual:charbi`，导出如下：
+
+- `FONT_BUILD_VERSION`：最终字体版本号
+- `BUILD_FONT_FACES`：由 `fonts.config.ts` 推导出的字体描述列表
+- `FONT_ASSET_BASE_URL`：当配置了 `cos.cdnUrl` 与 `cos.basePath` 时返回 CDN 前缀，否则为 `undefined`
+
+示例（微信小程序 `uni.loadFontFace`）：
+
+```ts
 import { FONT_ASSET_BASE_URL, FONT_BUILD_VERSION, BUILD_FONT_FACES } from "virtual:charbi";
 
 for (const face of BUILD_FONT_FACES) {
@@ -202,37 +223,32 @@ for (const face of BUILD_FONT_FACES) {
 }
 ```
 
-在 `vite.config.ts` 中启用插件：
-
-```typescript
-import CharbiFont from "@uiron/charbi/vite";
-
-export default defineConfig({
-  plugins: [CharbiFont()]
-});
-```
-
 ## TypeScript 类型支持
 
-如果你在业务代码中直接使用虚拟模块：
+如果在业务中直接导入虚拟模块：
 
 ```ts
 import { BUILD_FONT_FACES, FONT_BUILD_VERSION } from "virtual:charbi";
 ```
 
-虚拟模块类型在项目中启用 **`@uiron/charbi/client`** 即可（二选一）：
+请启用 `@uiron/charbi/client` 类型声明（二选一）：
 
-1. `/// <reference types="@uiron/charbi/client" />`（推荐放在 `env.d.ts`）
-2. `tsconfig.json` → `compilerOptions.types` 中添加 `"@uiron/charbi/client"`
+1. 在 `env.d.ts` 添加 `/// <reference types="@uiron/charbi/client" />`
+2. 在 `tsconfig.json` 的 `compilerOptions.types` 中添加 `"@uiron/charbi/client"`
 
 ## 使用命令
 
 ```bash
-charbi          # 构建 + 上传到 CDN
-charbi build    # 仅构建（生成字体子集到缓存目录）
-charbi upload   # 仅上传（上传缓存目录中的字体到 CDN）
-charbi --mode production  # 使用 production 模式
+charbi
+charbi build
+charbi upload
+charbi --mode production
 ```
+
+- `charbi`：构建并上传到 CDN
+- `charbi build`：仅构建子集字体到缓存目录
+- `charbi upload`：仅上传缓存目录中的构建产物
+- `charbi --mode production`：以生产模式运行
 
 ## 关于名称
 
