@@ -2,7 +2,7 @@ import type { ExtraText, ResolvedConfig } from "../config/schema";
 import fs from "node:fs";
 import path from "node:path";
 import consola from "consola";
-import fg from "fast-glob";
+import { glob } from "tinyglobby";
 import { DEFAULT_CHARS } from "../utils/defaults";
 import { stripComments } from "./strip-comments";
 
@@ -52,7 +52,7 @@ export async function collectChars(config: ResolvedConfig): Promise<Set<string>>
     config.scan.extensions.map((ext) => `${dir}/**/*.${ext}`)
   );
 
-  const files = await fg(patterns, {
+  const files = await glob(patterns, {
     cwd: config.root,
     absolute: false,
     onlyFiles: true
