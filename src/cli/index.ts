@@ -4,9 +4,11 @@ import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
 import { downloadFonts } from "../core/download";
+import { exportFontWordFiles } from "../core/export-words";
 import { generateFontCss } from "../core/generate-css";
 import { collectChars } from "../core/scan";
 import { generateFontSubset } from "../core/subset";
+import { getWordsCacheDir } from "../utils/cache-dir";
 import { uploadToCDN } from "../uploader";
 import { getVersion, loadConfig } from "../config";
 import { resolveConfiguredSubsetPaths } from "../utils/subset-font-file";
@@ -76,6 +78,9 @@ async function runBuild(options: BuildOptions, globalOptions?: GlobalOptions) {
   }
 
   const chars = await collectChars(config);
+
+  const wordsCacheDir = getWordsCacheDir(config.cacheDir);
+  await exportFontWordFiles(chars, config.fonts, wordsCacheDir);
 
   const fontGroupMap = await generateFontSubset(
     fontPathMap,

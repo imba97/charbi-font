@@ -4,7 +4,8 @@ import path from "node:path";
 import { describe, expect, it } from "vite-plus/test";
 import {
   resolveConfiguredSubsetPaths,
-  subsetOutputFileName
+  subsetOutputFileName,
+  subsetWordsFileName
 } from "../../src/utils/subset-font-file";
 
 describe("subset-font-file", () => {
@@ -15,6 +16,12 @@ describe("subset-font-file", () => {
         "woff2"
       )
     ).toBe("AlibabaPuHuiTi-400.woff2");
+  });
+
+  it("subsetWordsFileName matches subset base name", () => {
+    const font = { family: "Alibaba PuHuiTi", name: "Black", weight: 900, url: "x" };
+    expect(subsetWordsFileName(font)).toBe("AlibabaPuHuiTi-900.txt");
+    expect(subsetOutputFileName(font, "woff2")).toBe("AlibabaPuHuiTi-900.woff2");
   });
 
   it("resolveConfiguredSubsetPaths only maps configured fonts", () => {

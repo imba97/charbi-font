@@ -19,10 +19,20 @@ export function resolveFontFileExtension(format: string): string {
   return extensionMap[normalized] || normalized;
 }
 
+/** 子集/words 共用的文件主名（family 去空格 + weight） */
+export function subsetOutputBaseName(font: FontConfig): string {
+  return `${normalizeFamilyForFileName(font.family)}-${font.weight}`;
+}
+
 /** 子集化上传后的文件名（与 generate-css CDN URL 一致） */
 export function subsetOutputFileName(font: FontConfig, formatForFile: string): string {
   const ext = resolveFontFileExtension(formatForFile);
-  return `${normalizeFamilyForFileName(font.family)}-${font.weight}.${ext}`;
+  return `${subsetOutputBaseName(font)}.${ext}`;
+}
+
+/** 与 subsets 文件名一一对应的字符清单（仅扩展名为 .txt） */
+export function subsetWordsFileName(font: FontConfig): string {
+  return `${subsetOutputBaseName(font)}.txt`;
 }
 
 /** 根据 fonts 配置列出应上传的子集文件路径（仅配置项，不扫描目录其余文件） */
