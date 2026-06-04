@@ -8,7 +8,7 @@ import { exportFontWordFiles } from "../core/export-words";
 import { generateFontCss } from "../core/generate-css";
 import { collectChars } from "../core/scan";
 import { generateFontSubset } from "../core/subset";
-import { getWordsCacheDir } from "../utils/cache-dir";
+import { getSubsetCacheDir, getWordsCacheDir } from "../utils/cache-dir";
 import { uploadToCDN } from "../uploader";
 import { getVersion, loadConfig } from "../config";
 import { resolveConfiguredSubsetPaths } from "../utils/subset-font-file";
@@ -62,8 +62,7 @@ async function runBuild(options: BuildOptions, globalOptions?: GlobalOptions) {
   consola.info(`   版本基线: ${baseVersion}`);
   consola.info(`   格式: ${config.output.format}`);
 
-  // 字体子集输出目录（缓存目录）
-  const subsetCacheDir = path.join(config.cacheDir, "subsets");
+  const subsetCacheDir = getSubsetCacheDir(config.cacheDir);
   fs.mkdirSync(subsetCacheDir, { recursive: true });
   // 清空旧文件
   for (const entry of fs.readdirSync(subsetCacheDir)) {
@@ -121,8 +120,7 @@ async function runUpload(_options: unknown, globalOptions?: GlobalOptions) {
   consola.info(`   模式: ${mode}`);
   consola.info(`   版本: ${versionStr}`);
 
-  // 从缓存的 subsets 目录读取字体文件
-  const subsetCacheDir = path.join(config.cacheDir, "subsets");
+  const subsetCacheDir = getSubsetCacheDir(config.cacheDir);
 
   if (!fs.existsSync(subsetCacheDir)) {
     consola.error(`没有找到字体文件目录: ${subsetCacheDir}`);

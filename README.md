@@ -117,9 +117,11 @@ import "@/styles/fonts";
 │   │   ├── alibaba-pu-hui-ti.css   # 字体家族样式
 │   │   └── fonts.css               # 汇总引入文件
 │   └── fonts.css                   # 业务侧入口文件
-└── node_modules/@uiron/charbi/.cache/fonts/
+└── node_modules/@uiron/charbi/.cache/
     ├── subsets/                    # 子集字体构建产物
-    └── AlibabaPuHuiTi-400.ttf      # 原始字体缓存
+    ├── words/                      # 各子集对应的字符清单
+    └── fonts/
+        └── AlibabaPuHuiTi-400.ttf  # 原始字体缓存
 ```
 
 ## 配置说明
