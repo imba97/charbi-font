@@ -9,6 +9,7 @@ import { collectChars } from "../core/scan";
 import { generateFontSubset } from "../core/subset";
 import { uploadToCDN } from "../uploader";
 import { getVersion, loadConfig } from "../config";
+import { resolveConfiguredSubsetPaths } from "../utils/subset-font-file";
 import consola from "consola";
 
 interface BuildOptions {
@@ -124,16 +125,29 @@ async function runUpload(_options: unknown, globalOptions?: GlobalOptions) {
     process.exit(1);
   }
 
+  const configuredPaths = resolveConfiguredSubsetPaths(
+    config.fonts,
+    config.output.format,
+    subsetCacheDir
+  );
   const fontFiles: string[] = [];
-  for (const entry of fs.readdirSync(subsetCacheDir)) {
-    const filePath = path.join(subsetCacheDir, entry);
-    if (fs.statSync(filePath).isFile()) {
+  const missingNames: string[] = [];
+  for (const filePath of configuredPaths) {
+    const name = path.basename(filePath);
+    const stat = fs.existsSync(filePath) ? fs.statSync(filePath) : null;
+    if (stat?.isFile() && stat.size > 0) {
       fontFiles.push(filePath);
+    } else {
+      missingNames.push(name);
     }
   }
 
+  if (missingNames.length > 0) {
+    consola.warn(`   配置中的字体文件缺失: ${missingNames.join(", ")}`);
+  }
+
   if (fontFiles.length === 0) {
-    consola.error("没有找到字体文件，请先执行 build");
+    consola.error("没有找到可上传的字体文件，请先执行 build");
     process.exit(1);
   }
 
