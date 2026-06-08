@@ -27,14 +27,14 @@ importers:
         specifier: ^7.3.0
         version: 7.3.0
       tinyglobby:
-        specifier: ^0.2.16
+        specifier: ^0.2.17
         version: 0.2.17
       unconfig:
         specifier: ^7.5.0
         version: 7.5.0
     devDependencies:
       '@types/node':
-        specifier: ^25.9.1
+        specifier: ^25.9.2
         version: 25.9.2
       bumpp:
         specifier: ^11.1.0
@@ -46,7 +46,7 @@ importers:
         specifier: ^6.0.3
         version: 6.0.3
       vite-plus:
-        specifier: ^0.1.22
+        specifier: ^0.1.24
         version: 0.1.24(@types/node@25.9.2)(jiti@2.7.0)(typescript@6.0.3)(vite@8.0.16(@types/node@25.9.2)(jiti@2.7.0)(yaml@2.9.0))(yaml@2.9.0)
 
 packages:
