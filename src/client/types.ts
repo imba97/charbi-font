@@ -1,1 +1,1 @@
-export type { FontFaceDescriptor } from "../runtime/types";
+export type { FontFaceDescriptor } from '../runtime/types'

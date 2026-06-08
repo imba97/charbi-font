@@ -1,27 +1,34 @@
-import { defineConfig } from "vite-plus";
-import mergeVirtualCharbiClientDts from "./scripts/vite-plugins/merge-virtual-charbi-client-dts/index.ts";
+import { defineConfig } from 'vite-plus'
+import { packEntries, packEntryNames } from './scripts/pack-entries.ts'
+import mergeVirtualCharbiClientDts from './scripts/vite-plugins/merge-virtual-charbi-client-dts/index.ts'
+import syncPackageExports from './scripts/vite-plugins/sync-package-exports/index.ts'
 
 export default defineConfig({
   staged: {
-    "src/**/*.{ts,js,mjs,cjs}": "vp check --fix",
-    "vite.config.ts": "vp check --fix",
-    "scripts/**/*.ts": "vp check --fix",
-    "package.json": "vp check --fix",
-    "README.md": "vp check --fix"
+    'src/**/*.{ts,js,mjs,cjs}': 'vp check --fix',
+    'vite.config.ts': 'vp check --fix',
+    'scripts/**/*.ts': 'vp check --fix',
+    'package.json': 'vp check --fix',
+    'README.md': 'vp check --fix'
   },
   pack: {
-    entry: {
-      config: "./src/config/index.ts",
-      loader: "./src/config/loader.ts",
-      runtime: "./src/runtime/index.ts",
-      vite: "./src/vite/index.ts",
-      cli: "./src/cli/index.ts",
-      client: "./src/client/index.ts"
-    },
-    plugins: [mergeVirtualCharbiClientDts()],
+    entry: packEntries,
+    plugins: [mergeVirtualCharbiClientDts(), syncPackageExports(packEntryNames)],
     dts: true,
-    format: ["esm", "cjs"],
-    minify: true
+    format: ['esm', 'cjs'],
+    minify: true,
+    deps: {
+      neverBundle: [
+        'cac',
+        'consola',
+        'defu',
+        'enquirer',
+        'fontmin',
+        'p-limit',
+        'tinyglobby',
+        'unconfig'
+      ]
+    }
   },
   lint: {
     options: {
@@ -30,6 +37,8 @@ export default defineConfig({
     }
   },
   fmt: {
-    trailingComma: "none"
+    singleQuote: true,
+    semi: false,
+    trailingComma: 'none'
   }
-});
+})

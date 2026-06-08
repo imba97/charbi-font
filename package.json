@@ -24,9 +24,6 @@
   "type": "module",
   "typesVersions": {
     "*": {
-      "loader": [
-        "./dist/loader.d.mts"
-      ],
       "config": [
         "./dist/config.d.mts"
       ],
@@ -36,38 +33,41 @@
       "vite": [
         "./dist/vite.d.mts"
       ],
+      "cli": [
+        "./dist/cli.d.mts"
+      ],
       "client": [
         "./dist/client.d.mts"
       ]
     }
   },
   "exports": {
+    "./package.json": "./package.json",
+    "./config": {
+      "import": "./dist/config.mjs",
+      "require": "./dist/config.cjs",
+      "types": "./dist/config.d.mts"
+    },
+    "./runtime": {
+      "import": "./dist/runtime.mjs",
+      "require": "./dist/runtime.cjs",
+      "types": "./dist/runtime.d.mts"
+    },
+    "./vite": {
+      "import": "./dist/vite.mjs",
+      "require": "./dist/vite.cjs",
+      "types": "./dist/vite.d.mts"
+    },
     "./cli": {
       "import": "./dist/cli.mjs",
-      "require": "./dist/cli.cjs"
+      "require": "./dist/cli.cjs",
+      "types": "./dist/cli.d.mts"
     },
     "./client": {
       "import": "./dist/client.mjs",
       "require": "./dist/client.cjs",
       "types": "./dist/client.d.mts"
-    },
-    "./config": {
-      "import": "./dist/config.mjs",
-      "require": "./dist/config.cjs"
-    },
-    "./loader": {
-      "import": "./dist/loader.mjs",
-      "require": "./dist/loader.cjs"
-    },
-    "./runtime": {
-      "import": "./dist/runtime.mjs",
-      "require": "./dist/runtime.cjs"
-    },
-    "./vite": {
-      "import": "./dist/vite.mjs",
-      "require": "./dist/vite.cjs"
-    },
-    "./package.json": "./package.json"
+    }
   },
   "publishConfig": {
     "access": "public"
@@ -115,6 +115,7 @@
   "nano-staged": {
     "src/**/*.{ts,js,mjs,cjs}": "vp check --fix",
     "vite.config.ts": "vp check --fix",
+    "scripts/**/*.ts": "vp check --fix",
     "package.json": "vp check --fix",
     "README.md": "vp check --fix"
   },

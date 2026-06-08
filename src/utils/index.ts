@@ -1,2 +1,2 @@
-export { getCacheDir, getProjectRoot, getVersion, loadConfig } from "../config";
-export { normalizeFamilyForFileName } from "./font-name";
+export { getCacheDir, getProjectRoot, getVersion, loadConfig } from '../config'
+export { normalizeFamilyForFileName } from './font-name'

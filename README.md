@@ -31,42 +31,42 @@ pnpm add cos-nodejs-sdk-v5
 在项目根目录创建 `fonts.config.ts`：
 
 ```ts
-import { defineConfig } from "@uiron/charbi/config";
+import { defineConfig } from '@uiron/charbi/config'
 
 export default defineConfig({
   build: {
     scan: {
-      srcDir: ["src"],
-      extensions: ["vue", "ts", "js", "scss", "css"]
+      srcDir: ['src'],
+      extensions: ['vue', 'ts', 'js', 'scss', 'css']
     },
     fonts: [
       {
-        family: "AlibabaPuHuiTi",
-        name: "Regular",
+        family: 'AlibabaPuHuiTi',
+        name: 'Regular',
         weight: 400,
-        url: "https://your-cos.com/path/to/AlibabaPuHuiTi-3.ttf"
+        url: 'https://your-cos.com/path/to/AlibabaPuHuiTi-3.ttf'
       },
       {
-        family: "AlibabaPuHuiTi",
-        name: "Bold",
+        family: 'AlibabaPuHuiTi',
+        name: 'Bold',
         weight: 700,
-        url: "https://your-cos.com/path/to/AlibabaPuHuiTi-3-bold.ttf"
+        url: 'https://your-cos.com/path/to/AlibabaPuHuiTi-3-bold.ttf'
       }
     ],
     output: {
-      cssDir: "src/styles",
-      format: "woff"
+      cssDir: 'src/styles',
+      format: 'woff'
       // styleFormat 可选 默认为 "css"
       // styleFormat: "scss"
     }
   },
   cos: {
-    bucket: "your-bucket",
-    region: "ap-guangzhou",
-    basePath: "static/fonts/{version}",
-    cdnUrl: "https://your-cos.com"
+    bucket: 'your-bucket',
+    region: 'ap-guangzhou',
+    basePath: 'static/fonts/{version}',
+    cdnUrl: 'https://your-cos.com'
   }
-});
+})
 ```
 
 ### 2. 执行构建和上传
@@ -86,14 +86,14 @@ charbi upload
 在入口文件中引入生成的样式入口：
 
 ```ts
-import "@/styles/fonts";
+import '@/styles/fonts'
 ```
 
 业务中按正常方式声明字体：
 
 ```css
 .my-text {
-  font-family: "AlibabaPuHuiTi", sans-serif;
+  font-family: 'AlibabaPuHuiTi', sans-serif;
   font-weight: 400;
 }
 ```
@@ -163,9 +163,9 @@ import "@/styles/fonts";
 ```ts
 export default defineConfig({
   build: {
-    cacheDir: ".cache/fonts"
+    cacheDir: '.cache/fonts'
   }
-});
+})
 ```
 
 ## 生成结果
@@ -175,8 +175,8 @@ export default defineConfig({
 
 ```scss
 @font-face {
-  font-family: "AlibabaPuHuiTi";
-  src: url("https://your-cos.com/static/fonts/1.0.0/AlibabaPuHuiTi-400.woff") format("woff");
+  font-family: 'AlibabaPuHuiTi';
+  src: url('https://your-cos.com/static/fonts/1.0.0/AlibabaPuHuiTi-400.woff') format('woff');
   font-weight: 400;
 }
 ```
@@ -190,11 +190,11 @@ import {
   resolveBuildFontVersion,
   resolveFontFaces,
   resolveFontAssetBase
-} from "@uiron/charbi/runtime";
+} from '@uiron/charbi/runtime'
 
-const version = resolveBuildFontVersion();
-const faces = await resolveFontFaces({ mode: "development" });
-const assetBase = await resolveFontAssetBase({ mode: "development" });
+const version = resolveBuildFontVersion()
+const faces = await resolveFontFaces({ mode: 'development' })
+const assetBase = await resolveFontAssetBase({ mode: 'development' })
 ```
 
 版本号规则：`VITE_FONT_BUILD_VERSION` → 项目根 `package.json` → `npm_package_version` → `0.0.1`
@@ -202,15 +202,15 @@ const assetBase = await resolveFontAssetBase({ mode: "development" });
 ### UnoCSS（uno.config.ts）
 
 ```ts
-import { defineConfig } from "unocss";
-import { resolveFontFaces } from "@uiron/charbi/runtime";
-import { fontPreset } from "./scripts/presets/font-preset";
+import { defineConfig } from 'unocss'
+import { resolveFontFaces } from '@uiron/charbi/runtime'
+import { fontPreset } from './scripts/presets/font-preset'
 
-const faces = await resolveFontFaces();
+const faces = await resolveFontFaces()
 
 export default defineConfig({
   presets: [fontPreset(faces)]
-});
+})
 ```
 
 ### 小程序 / Vite 业务代码（virtual:charbi）
@@ -218,17 +218,17 @@ export default defineConfig({
 在 `vite.config.ts` 注册插件：
 
 ```ts
-import CharbiFont from "@uiron/charbi/vite";
+import CharbiFont from '@uiron/charbi/vite'
 
 export default defineConfig({
   plugins: [CharbiFont()]
-});
+})
 ```
 
 业务代码中 import 虚拟模块（类型：`@uiron/charbi/client`）：
 
 ```ts
-import { BUILD_FONT_FACES, FONT_ASSET_BASE_URL } from "virtual:charbi";
+import { BUILD_FONT_FACES, FONT_ASSET_BASE_URL } from 'virtual:charbi'
 ```
 
 插件内部调用 runtime 函数，与 `fonts.config.ts` 同源。**不要在** `uno.config.ts` 等 Node 配置里 import `virtual:charbi`，应使用 runtime。
