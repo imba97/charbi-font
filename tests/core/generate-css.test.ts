@@ -123,4 +123,74 @@ describe('generateFontCss format mapping', () => {
       fs.rmSync(root, { recursive: true, force: true })
     }
   })
+
+  it('should use hyphenated slugs without spaces for multi word families', async () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'charbi-css-slug-'))
+    try {
+      const config = {
+        root,
+        output: {
+          cssDir: 'src/styles',
+          format: 'woff2',
+          styleFormat: 'scss'
+        },
+        cos: {
+          cdnUrl: 'https://cdn.example.com',
+          basePath: '/static/fonts/{version}'
+        }
+      } as any
+
+      const fontGroupMap = new Map([
+        [
+          'Alibaba PuHuiTi',
+          [
+            {
+              config: {
+                family: 'Alibaba PuHuiTi',
+                name: 'Regular',
+                weight: 400,
+                style: 'normal'
+              },
+              size: 100,
+              filePath: '',
+              format: 'woff2'
+            }
+          ]
+        ],
+        [
+          'DingTalk JinBuTi',
+          [
+            {
+              config: {
+                family: 'DingTalk JinBuTi',
+                name: 'Regular',
+                weight: 400,
+                style: 'normal'
+              },
+              size: 100,
+              filePath: '',
+              format: 'woff2'
+            }
+          ]
+        ]
+      ]) as any
+
+      await generateFontCss(fontGroupMap, config, '1.2.3', 'woff2')
+
+      const indexCss = fs.readFileSync(path.join(root, 'src/styles/fonts.scss'), 'utf-8')
+
+      expect(fs.existsSync(path.join(root, 'src/styles/font-assets/alibaba-pu-hui-ti.scss'))).toBe(
+        true
+      )
+      expect(
+        fs.existsSync(path.join(root, 'src/styles/font-assets/ding-talk-jin-bu-ti.scss'))
+      ).toBe(true)
+      expect(indexCss).toContain("@use './font-assets/alibaba-pu-hui-ti' as *;")
+      expect(indexCss).toContain("@use './font-assets/ding-talk-jin-bu-ti' as *;")
+      expect(indexCss).not.toContain('alibaba pu-hui-ti')
+      expect(indexCss).not.toContain('ding-talk jin-bu-ti')
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true })
+    }
+  })
 })

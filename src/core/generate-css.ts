@@ -6,6 +6,7 @@ import consola from 'consola'
 import { FONT_ASSETS_DIR } from '../config/schema'
 import { resolveFontFileUrl } from '../utils/font-url'
 import { resolveFontFileExtension } from '../utils/subset-font-file'
+import { toFamilyStyleSlug } from '../utils/font-name'
 
 function formatFontDisplayLine(fontDisplay?: FontFaceDisplay | false): string {
   if (fontDisplay === undefined || fontDisplay === false) return ''
@@ -91,8 +92,8 @@ export async function generateFontCss(
   let totalCssSize = 0
 
   for (const [family, subsets] of fontGroupMap) {
-    // 生成 xxx.scss/css 文件（使用 kebab-case，去掉 font- 前缀）
-    const styleFileName = `${family.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase()}.${styleExt}`
+    const styleSlug = toFamilyStyleSlug(family)
+    const styleFileName = `${styleSlug}.${styleExt}`
     const styleFilePath = path.join(assetsDir, styleFileName)
 
     const cssImportPath = config.output.cssDir.replace(/^src\//, '')
@@ -101,7 +102,7 @@ export async function generateFontCss(
  * 由 @uiron/charbi 自动生成
  *
  * 使用方式：
- * ${styleFormat === 'scss' ? `@use '@/${cssImportPath}/${FONT_ASSETS_DIR}/${family.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase()}' as *;` : `import '@/${cssImportPath}/${FONT_ASSETS_DIR}/${family.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase()}';`}
+ * ${styleFormat === 'scss' ? `@use '@/${cssImportPath}/${FONT_ASSETS_DIR}/${styleSlug}' as *;` : `import '@/${cssImportPath}/${FONT_ASSETS_DIR}/${styleSlug}';`}
  *
  * CSS 中使用：
  * font-family: '${family}', sans-serif;
