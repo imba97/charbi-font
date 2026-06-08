@@ -84,7 +84,7 @@
     "lint:fix": "vp lint --fix",
     "fmt": "vp fmt",
     "fmt:fix": "vp fmt --write",
-    "prepare": "simple-git-hooks",
+    "prepare": "vp config",
     "release": "bumpp"
   },
   "dependencies": {
@@ -101,23 +101,11 @@
     "@types/node": "^25.9.1",
     "bumpp": "^11.1.0",
     "cos-nodejs-sdk-v5": "^2.15.4",
-    "nano-staged": "^1.0.2",
-    "simple-git-hooks": "^2.13.1",
     "typescript": "^6.0.3",
     "vite-plus": "^0.1.22"
   },
   "peerDependencies": {
     "cos-nodejs-sdk-v5": "*"
-  },
-  "simple-git-hooks": {
-    "pre-commit": "pnpm nano-staged"
-  },
-  "nano-staged": {
-    "src/**/*.{ts,js,mjs,cjs}": "vp check --fix",
-    "vite.config.ts": "vp check --fix",
-    "scripts/**/*.ts": "vp check --fix",
-    "package.json": "vp check --fix",
-    "README.md": "vp check --fix"
   },
   "packageManager": "pnpm@11.3.0"
 }

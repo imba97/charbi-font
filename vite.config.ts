@@ -5,11 +5,7 @@ import syncPackageExports from './scripts/vite-plugins/sync-package-exports/inde
 
 export default defineConfig({
   staged: {
-    'src/**/*.{ts,js,mjs,cjs}': 'vp check --fix',
-    'vite.config.ts': 'vp check --fix',
-    'scripts/**/*.ts': 'vp check --fix',
-    'package.json': 'vp check --fix',
-    'README.md': 'vp check --fix'
+    '*.{js,ts,tsx,vue,svelte}': 'vp check --fix'
   },
   pack: {
     entry: packEntries,
