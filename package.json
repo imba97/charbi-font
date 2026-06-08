@@ -1,6 +1,6 @@
 {
   "name": "@uiron/charbi",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "中文字体子集化工具，扫描代码提取字符，生成精简字体包",
   "keywords": [
     "builder",
