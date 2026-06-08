@@ -29,13 +29,12 @@ export function getProjectRoot(): string {
   return process.cwd();
 }
 
-// 获取版本号
-export function getVersion(userVersion?: string): string {
-  if (userVersion) return userVersion;
+import { resolveBuildFontVersion } from "../runtime";
 
-  const rootPkgPath = path.join(getProjectRoot(), "package.json");
-  const rootPkg = JSON.parse(fs.readFileSync(rootPkgPath, "utf-8"));
-  return rootPkg.version || "0.0.1";
+// 获取版本号（与 virtual:charbi / runtime 一致；userVersion 优先）
+export function getVersion(userVersion?: string, projectRoot?: string): string {
+  if (userVersion) return userVersion;
+  return resolveBuildFontVersion(projectRoot ?? getProjectRoot());
 }
 
 // 获取缓存目录

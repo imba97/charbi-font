@@ -25,13 +25,16 @@
   "typesVersions": {
     "*": {
       "loader": [
-        "./dist/config/loader.d.mts"
+        "./dist/loader.d.mts"
       ],
       "config": [
-        "./dist/config/index.d.mts"
+        "./dist/config.d.mts"
       ],
       "vite": [
-        "./dist/vite/index.d.mts"
+        "./dist/vite.d.mts"
+      ],
+      "runtime": [
+        "./dist/runtime.d.mts"
       ],
       "client": [
         "./dist/client.d.mts"
@@ -58,6 +61,10 @@
     "./vite": {
       "import": "./dist/vite.mjs",
       "require": "./dist/vite.cjs"
+    },
+    "./runtime": {
+      "import": "./dist/runtime.mjs",
+      "require": "./dist/runtime.cjs"
     },
     "./package.json": "./package.json"
   },

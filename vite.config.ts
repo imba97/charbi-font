@@ -36,6 +36,7 @@ export default defineConfig({
       config: "./src/config/index.ts",
       loader: "./src/config/loader.ts",
       vite: "./src/vite/index.ts",
+      runtime: "./src/runtime/index.ts",
       cli: "./src/cli/index.ts",
       client: "./src/client/index.ts"
     },

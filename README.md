@@ -225,6 +225,46 @@ for (const face of BUILD_FONT_FACES) {
 }
 ```
 
+## Node Runtime API（uno.config / 脚本）
+
+`virtual:charbi` **仅**在 Vite/Rollup 管道内可用。在 `uno.config.ts`、Node 脚本、测试 runner 等 **Node 直接加载** 的文件中，请使用 `@uiron/charbi/runtime`：
+
+```ts
+import { resolveCharbiRuntime } from "@uiron/charbi/runtime";
+
+const charbi = await resolveCharbiRuntime({
+  mode: process.env.NODE_ENV === "production" ? "production" : "development"
+});
+
+charbi.FONT_BUILD_VERSION;
+charbi.BUILD_FONT_FACES;
+charbi.FONT_ASSET_BASE_URL;
+```
+
+返回值与 `virtual:charbi` 字段一致，内部共用同一套解析逻辑。
+
+UnoCSS 示例（`uno.config.ts` 顶层 await）：
+
+```ts
+import { defineConfig } from "unocss";
+import { resolveCharbiRuntime } from "@uiron/charbi/runtime";
+import { fontPreset } from "./scripts/presets/font-preset";
+
+const charbi = await resolveCharbiRuntime();
+
+export default defineConfig({
+  presets: [fontPreset(charbi)]
+});
+```
+
+也可按需导入纯函数：`resolveBuildFontVersion`、`buildFontFaces`、`resolveFontAssetBaseUrl`。
+
+| 场景                       | 用法                    |
+| -------------------------- | ----------------------- |
+| `uno.config.ts`、Node 脚本 | `@uiron/charbi/runtime` |
+| `src/**` 应用代码          | `virtual:charbi`        |
+| 类型声明                   | `@uiron/charbi/client`  |
+
 ## TypeScript 类型支持
 
 如果在业务中直接导入虚拟模块：
