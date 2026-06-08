@@ -5,10 +5,12 @@ import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 import type { ResolvedConfig } from "../../src/config/schema";
 import {
   buildFontFaces,
+  loadCharbiConfig,
   resolveBuildFontVersion,
-  resolveCharbiRuntime,
+  resolveCharbiSnapshot,
+  resolveFontAssetBase,
   resolveFontAssetBaseUrl,
-  serializeCharbiRuntimeAsEsm
+  resolveFontFaces
 } from "../../src/runtime";
 
 vi.mock("../../src/config/loader", async (importOriginal) => {
@@ -126,7 +128,7 @@ describe("runtime", () => {
     expect(resolveFontAssetBaseUrl(config, "1.0.0")).toBeUndefined();
   });
 
-  it("resolveCharbiRuntime returns virtual module equivalent fields", async () => {
+  it("resolveFontFaces loads config and returns faces", async () => {
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "charbi-runtime-"));
     fs.writeFileSync(
       path.join(tempDir, "package.json"),
@@ -136,35 +138,62 @@ describe("runtime", () => {
     const config = mockResolvedConfig({ root: tempDir });
     (loadConfig as ReturnType<typeof vi.fn>).mockResolvedValue(config);
 
-    const runtime = await resolveCharbiRuntime({ root: tempDir, mode: "development" });
+    const faces = await resolveFontFaces({ root: tempDir, mode: "development" });
 
-    expect(runtime.FONT_BUILD_VERSION).toBe("0.0.84");
-    expect(runtime.BUILD_FONT_FACES).toHaveLength(2);
-    expect(runtime.FONT_ASSET_BASE_URL).toBe(
-      "https://cdn.example.com/static/fonts/built/0.0.84"
-    );
+    expect(faces).toHaveLength(2);
+    expect(loadConfig).toHaveBeenCalledWith("development", tempDir);
   });
 
-  it("serializeCharbiRuntimeAsEsm produces importable exports", () => {
-    const runtime = {
-      FONT_BUILD_VERSION: "1.0.0",
-      BUILD_FONT_FACES: [
-        {
-          family: "Test",
-          file: "Test-400.woff2",
-          weight: "400",
-          style: "normal" as const,
-          variant: "normal" as const
-        }
-      ],
-      FONT_ASSET_BASE_URL: "https://cdn.example.com/fonts/1.0.0"
-    };
-
-    const code = serializeCharbiRuntimeAsEsm(runtime);
-    expect(code).toContain('export const FONT_BUILD_VERSION = "1.0.0"');
-    expect(code).toContain("export const BUILD_FONT_FACES = ");
-    expect(code).toContain(
-      'export const FONT_ASSET_BASE_URL = "https://cdn.example.com/fonts/1.0.0"'
+  it("resolveFontAssetBase returns CDN prefix with version", async () => {
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "charbi-runtime-"));
+    fs.writeFileSync(
+      path.join(tempDir, "package.json"),
+      JSON.stringify({ name: "demo", version: "0.0.84" }),
+      "utf-8"
     );
+    const config = mockResolvedConfig({ root: tempDir });
+    (loadConfig as ReturnType<typeof vi.fn>).mockResolvedValue(config);
+
+    const base = await resolveFontAssetBase({ root: tempDir, mode: "development" });
+
+    expect(base).toBe("https://cdn.example.com/static/fonts/built/0.0.84");
+  });
+
+  it("resolveCharbiSnapshot prefers config.version over package.json", async () => {
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "charbi-runtime-"));
+    fs.writeFileSync(
+      path.join(tempDir, "package.json"),
+      JSON.stringify({ name: "demo", version: "0.0.84" }),
+      "utf-8"
+    );
+    const config = mockResolvedConfig({ root: tempDir, version: "0.0.35" });
+    (loadConfig as ReturnType<typeof vi.fn>).mockResolvedValue(config);
+
+    const snapshot = await resolveCharbiSnapshot({ root: tempDir, mode: "development" });
+
+    expect(snapshot.version).toBe("0.0.35");
+    expect(snapshot.assetBase).toBe("https://cdn.example.com/static/fonts/built/0.0.35");
+    expect(loadConfig).toHaveBeenCalledTimes(1);
+  });
+
+  it("resolveFontFaces and resolveFontAssetBase share one loadConfig via snapshot", async () => {
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "charbi-runtime-"));
+    const config = mockResolvedConfig({ root: tempDir });
+    (loadConfig as ReturnType<typeof vi.fn>).mockResolvedValue(config);
+
+    await resolveFontFaces({ root: tempDir });
+    await resolveFontAssetBase({ root: tempDir });
+
+    expect(loadConfig).toHaveBeenCalledTimes(2);
+  });
+
+  it("loadCharbiConfig delegates to loadConfig", async () => {
+    const config = mockResolvedConfig();
+    (loadConfig as ReturnType<typeof vi.fn>).mockResolvedValue(config);
+
+    const loaded = await loadCharbiConfig({ mode: "production" });
+
+    expect(loaded).toBe(config);
+    expect(loadConfig).toHaveBeenCalledWith("production", process.cwd());
   });
 });

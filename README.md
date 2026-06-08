@@ -181,12 +181,43 @@ export default defineConfig({
 }
 ```
 
-## Vite 插件
+## Runtime API
 
-在 Vite 中使用默认插件 `CharbiFont()`（无参数）：
+`@uiron/charbi/runtime` 提供 Node 侧函数，从 `fonts.config.ts` 推导字体元数据。按需 import 并调用：
 
 ```ts
-import { defineConfig } from "vite";
+import {
+  resolveBuildFontVersion,
+  resolveFontFaces,
+  resolveFontAssetBase
+} from "@uiron/charbi/runtime";
+
+const version = resolveBuildFontVersion();
+const faces = await resolveFontFaces({ mode: "development" });
+const assetBase = await resolveFontAssetBase({ mode: "development" });
+```
+
+版本号规则：`VITE_FONT_BUILD_VERSION` → 项目根 `package.json` → `npm_package_version` → `0.0.1`
+
+### UnoCSS（uno.config.ts）
+
+```ts
+import { defineConfig } from "unocss";
+import { resolveFontFaces } from "@uiron/charbi/runtime";
+import { fontPreset } from "./scripts/presets/font-preset";
+
+const faces = await resolveFontFaces();
+
+export default defineConfig({
+  presets: [fontPreset(faces)]
+});
+```
+
+### 小程序 / Vite 业务代码（virtual:charbi）
+
+在 `vite.config.ts` 注册插件：
+
+```ts
 import CharbiFont from "@uiron/charbi/vite";
 
 export default defineConfig({
@@ -194,89 +225,19 @@ export default defineConfig({
 });
 ```
 
-版本号解析规则与虚拟模块中的 `FONT_BUILD_VERSION` 一致：
-
-`VITE_FONT_BUILD_VERSION` -> 项目根 `package.json` -> `npm_package_version` -> `0.0.1`
-
-虚拟模块 ID 为 `virtual:charbi`，导出如下：
-
-- `FONT_BUILD_VERSION`：最终字体版本号
-- `BUILD_FONT_FACES`：由 `fonts.config.ts` 推导出的字体描述列表
-- `FONT_ASSET_BASE_URL`：当配置了 `cos.cdnUrl` 与 `cos.basePath` 时返回 CDN 前缀，否则为 `undefined`
-
-示例（微信小程序 `uni.loadFontFace`）：
+业务代码中 import 虚拟模块（类型：`@uiron/charbi/client`）：
 
 ```ts
-import { FONT_ASSET_BASE_URL, FONT_BUILD_VERSION, BUILD_FONT_FACES } from "virtual:charbi";
-
-for (const face of BUILD_FONT_FACES) {
-  const base = FONT_ASSET_BASE_URL;
-  if (!base) continue;
-  uni.loadFontFace({
-    global: true,
-    family: face.family,
-    source: `url("${base}/${face.file}")`,
-    desc: {
-      style: face.style,
-      weight: face.weight,
-      variant: face.variant
-    }
-  });
-}
+import { BUILD_FONT_FACES, FONT_ASSET_BASE_URL } from "virtual:charbi";
 ```
 
-## Node Runtime API（uno.config / 脚本）
+插件内部调用 runtime 函数，与 `fonts.config.ts` 同源。**不要在** `uno.config.ts` 等 Node 配置里 import `virtual:charbi`，应使用 runtime。
 
-`virtual:charbi` **仅**在 Vite/Rollup 管道内可用。在 `uno.config.ts`、Node 脚本、测试 runner 等 **Node 直接加载** 的文件中，请使用 `@uiron/charbi/runtime`：
-
-```ts
-import { resolveCharbiRuntime } from "@uiron/charbi/runtime";
-
-const charbi = await resolveCharbiRuntime({
-  mode: process.env.NODE_ENV === "production" ? "production" : "development"
-});
-
-charbi.FONT_BUILD_VERSION;
-charbi.BUILD_FONT_FACES;
-charbi.FONT_ASSET_BASE_URL;
-```
-
-返回值与 `virtual:charbi` 字段一致，内部共用同一套解析逻辑。
-
-UnoCSS 示例（`uno.config.ts` 顶层 await）：
-
-```ts
-import { defineConfig } from "unocss";
-import { resolveCharbiRuntime } from "@uiron/charbi/runtime";
-import { fontPreset } from "./scripts/presets/font-preset";
-
-const charbi = await resolveCharbiRuntime();
-
-export default defineConfig({
-  presets: [fontPreset(charbi)]
-});
-```
-
-也可按需导入纯函数：`resolveBuildFontVersion`、`buildFontFaces`、`resolveFontAssetBaseUrl`。
-
-| 场景                       | 用法                    |
-| -------------------------- | ----------------------- |
-| `uno.config.ts`、Node 脚本 | `@uiron/charbi/runtime` |
-| `src/**` 应用代码          | `virtual:charbi`        |
-| 类型声明                   | `@uiron/charbi/client`  |
-
-## TypeScript 类型支持
-
-如果在业务中直接导入虚拟模块：
-
-```ts
-import { BUILD_FONT_FACES, FONT_BUILD_VERSION } from "virtual:charbi";
-```
-
-请启用 `@uiron/charbi/client` 类型声明（二选一）：
-
-1. 在 `env.d.ts` 添加 `/// <reference types="@uiron/charbi/client" />`
-2. 在 `tsconfig.json` 的 `compilerOptions.types` 中添加 `"@uiron/charbi/client"`
+| 场景                       | 用法                                         |
+| -------------------------- | -------------------------------------------- |
+| `uno.config.ts`、Node 脚本 | `@uiron/charbi/runtime`                      |
+| Vite 打包的 `src/**`       | `virtual:charbi` + `@uiron/charbi/vite` 插件 |
+| 类型                       | `@uiron/charbi/client`                       |
 
 ## 使用命令
 

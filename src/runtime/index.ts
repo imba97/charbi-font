@@ -1,55 +1,47 @@
-import type { CharbiFontFaceDescriptor } from "../client/types";
+import type { FontFaceDescriptor } from "./types";
 import type { ResolvedConfig } from "../config/schema";
+import { getVersion } from "../config/version";
 import { loadConfig } from "../config";
+import { resolveFontAssetBaseUrl } from "../utils/font-url";
 import { subsetOutputFileName } from "../utils/subset-font-file";
-import fs from "node:fs";
-import path from "node:path";
 import process from "node:process";
 
-/** 与 virtual:charbi 导出字段一一对应 */
-export interface CharbiRuntime {
-  readonly FONT_BUILD_VERSION: string;
-  readonly BUILD_FONT_FACES: readonly CharbiFontFaceDescriptor[];
-  readonly FONT_ASSET_BASE_URL: string | undefined;
-}
+export type { FontFaceDescriptor } from "./types";
+export { resolveBuildFontVersion, getVersion } from "../config/version";
+export { resolveFontAssetBaseUrl, resolveFontFileUrl } from "../utils/font-url";
 
-export interface ResolveCharbiRuntimeOptions {
+export interface CharbiResolveOptions {
   /** 项目根目录，默认 process.cwd() */
   root?: string;
-  /** 与 loadConfig / 虚拟模块一致 */
   mode?: "development" | "production";
 }
 
-function resolveProjectPackageVersion(projectRoot: string): string | undefined {
-  const pkgPath = path.join(projectRoot, "package.json");
-  if (!fs.existsSync(pkgPath)) {
-    return undefined;
-  }
-
-  try {
-    const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf-8"));
-    if (typeof pkg?.version === "string" && pkg.version.length > 0) {
-      return pkg.version;
-    }
-  } catch {
-    // ignore and fallback
-  }
-
-  return undefined;
+export interface CharbiSnapshot {
+  version: string;
+  faces: FontFaceDescriptor[];
+  assetBase: string | undefined;
 }
 
-/** 版本号（与 virtual 模块 FONT_BUILD_VERSION 规则一致） */
-export function resolveBuildFontVersion(projectRoot: string = process.cwd()): string {
-  return (
-    process.env.VITE_FONT_BUILD_VERSION ||
-    resolveProjectPackageVersion(projectRoot) ||
-    process.env.npm_package_version ||
-    "0.0.1"
-  );
+function resolveOptions(options: CharbiResolveOptions = {}): {
+  root: string;
+  mode: "development" | "production";
+} {
+  return {
+    root: options.root ?? process.cwd(),
+    mode: options.mode ?? (process.env.NODE_ENV === "production" ? "production" : "development")
+  };
 }
 
-/** 由 ResolvedConfig 推导 BUILD_FONT_FACES */
-export function buildFontFaces(config: ResolvedConfig): CharbiFontFaceDescriptor[] {
+/** 加载 fonts.config.ts 并 merge 默认值 */
+export async function loadCharbiConfig(
+  options: CharbiResolveOptions = {}
+): Promise<ResolvedConfig> {
+  const { root, mode } = resolveOptions(options);
+  return loadConfig(mode, root);
+}
+
+/** 由 ResolvedConfig 推导字体 face 列表 */
+export function buildFontFaces(config: ResolvedConfig): FontFaceDescriptor[] {
   return config.fonts.map((font) => ({
     family: font.family,
     file: subsetOutputFileName(font, font.format ?? config.output.format),
@@ -59,51 +51,30 @@ export function buildFontFaces(config: ResolvedConfig): CharbiFontFaceDescriptor
   }));
 }
 
-/** CDN 前缀 FONT_ASSET_BASE_URL */
-export function resolveFontAssetBaseUrl(
-  config: ResolvedConfig,
-  version: string
-): string | undefined {
-  const { cdnUrl, basePath } = config.cos;
-  if (!cdnUrl || !basePath) {
-    return undefined;
-  }
-  const cleanCdn = cdnUrl.replace(/\/+$/, "");
-  const cleanPath = basePath.replace("{version}", version).replace(/^\/+|\/+$/g, "");
-  return `${cleanCdn}/${cleanPath}`;
-}
-
-/** 将 runtime 序列化为 virtual:charbi 的 ESM 源码 */
-export function serializeCharbiRuntimeAsEsm(runtime: CharbiRuntime): string {
-  const lines = [
-    `export const FONT_BUILD_VERSION = ${JSON.stringify(runtime.FONT_BUILD_VERSION)};`,
-    `export const BUILD_FONT_FACES = ${JSON.stringify(runtime.BUILD_FONT_FACES)};`
-  ];
-  if (runtime.FONT_ASSET_BASE_URL !== undefined) {
-    lines.push(
-      `export const FONT_ASSET_BASE_URL = ${JSON.stringify(runtime.FONT_ASSET_BASE_URL)};`
-    );
-  } else {
-    lines.push("export const FONT_ASSET_BASE_URL = undefined;");
-  }
-  return lines.join("\n");
-}
-
-/** Node / uno.config / 脚本：异步解析，等价于 import virtual:charbi 的运行时值 */
-export async function resolveCharbiRuntime(
-  options: ResolveCharbiRuntimeOptions = {}
-): Promise<CharbiRuntime> {
-  const root = options.root ?? process.cwd();
-  const mode =
-    options.mode ?? (process.env.NODE_ENV === "production" ? "production" : "development");
+/** 单次加载配置，返回 version / faces / assetBase */
+export async function resolveCharbiSnapshot(
+  options: CharbiResolveOptions = {}
+): Promise<CharbiSnapshot> {
+  const { root, mode } = resolveOptions(options);
   const config = await loadConfig(mode, root);
-  const version = resolveBuildFontVersion(root);
-  const assetBase = resolveFontAssetBaseUrl(config, version);
-  const faces = buildFontFaces(config);
-
+  const version = getVersion(config.version, root);
   return {
-    FONT_BUILD_VERSION: version,
-    BUILD_FONT_FACES: faces,
-    FONT_ASSET_BASE_URL: assetBase
+    version,
+    faces: buildFontFaces(config),
+    assetBase: resolveFontAssetBaseUrl(config, version)
   };
+}
+
+/** 加载配置并返回 face 列表 */
+export async function resolveFontFaces(
+  options: CharbiResolveOptions = {}
+): Promise<FontFaceDescriptor[]> {
+  return (await resolveCharbiSnapshot(options)).faces;
+}
+
+/** 加载配置并返回 CDN 前缀 */
+export async function resolveFontAssetBase(
+  options: CharbiResolveOptions = {}
+): Promise<string | undefined> {
+  return (await resolveCharbiSnapshot(options)).assetBase;
 }

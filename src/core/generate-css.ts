@@ -1,35 +1,11 @@
-import type { FontConfig, FontFaceDisplay, ResolvedConfig, StyleFormat } from "../config/schema";
+import type { FontFaceDisplay, ResolvedConfig, StyleFormat } from "../config/schema";
 import type { FontGroupMap } from "../types/font-subset";
 import fs from "node:fs";
 import path from "node:path";
 import consola from "consola";
 import { FONT_ASSETS_DIR } from "../config/schema";
-import { resolveFontFileExtension, subsetOutputFileName } from "../utils/subset-font-file";
-
-// 生成字体 URL（COS 模式）
-function toFontUrl(
-  config: ResolvedConfig,
-  font: FontConfig,
-  version: string,
-  extension: string
-): string {
-  const { cos } = config;
-  if (cos.cdnUrl) {
-    // 使用 CDN URL，basePath 包含完整路径和版本号占位符
-    if (!cos.basePath) {
-      throw new Error("COS 配置缺少 basePath，请在 fonts.config.ts 中设置 cos.basePath");
-    }
-    const filename = subsetOutputFileName(font, extension);
-    const basePath = cos.basePath.replace("{version}", version);
-
-    // 保留协议头（https://），仅规范主机后路径的斜杠
-    const cleanCdn = cos.cdnUrl.replace(/\/+$/, "");
-    const cleanPath = basePath.replace(/^\/+|\/+$/g, "");
-    return `${cleanCdn}/${cleanPath}/${filename}`;
-  }
-  // 本地路径
-  return `./fonts/${subsetOutputFileName(font, extension)}`;
-}
+import { resolveFontFileUrl } from "../utils/font-url";
+import { resolveFontFileExtension } from "../utils/subset-font-file";
 
 function formatFontDisplayLine(fontDisplay?: FontFaceDisplay | false): string {
   if (fontDisplay === undefined || fontDisplay === false) return "";
@@ -137,7 +113,12 @@ export async function generateFontCss(
     for (const subset of subsets) {
       const { config: font, size } = subset;
       const subsetFormat = subset.format || subsetExtension;
-      const fontUrl = toFontUrl(config, font, version, resolveFontFileExtension(subsetFormat));
+      const fontUrl = resolveFontFileUrl(
+        config,
+        font,
+        version,
+        resolveFontFileExtension(subsetFormat)
+      );
       cssContent += generateFontFace(
         family,
         font.weight,

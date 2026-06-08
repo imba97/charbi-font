@@ -29,13 +29,7 @@ export function getProjectRoot(): string {
   return process.cwd();
 }
 
-import { resolveBuildFontVersion } from "../runtime";
-
-// 获取版本号（与 virtual:charbi / runtime 一致；userVersion 优先）
-export function getVersion(userVersion?: string, projectRoot?: string): string {
-  if (userVersion) return userVersion;
-  return resolveBuildFontVersion(projectRoot ?? getProjectRoot());
-}
+export { getVersion, resolveBuildFontVersion } from "./version";
 
 // 获取缓存目录
 export function getCacheDir(userCacheDir?: string, projectRoot?: string): string {

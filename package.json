@@ -1,6 +1,6 @@
 {
   "name": "@uiron/charbi",
-  "version": "1.3.0",
+  "version": "2.0.0",
   "description": "中文字体子集化工具，扫描代码提取字符，生成精简字体包",
   "keywords": [
     "builder",
@@ -30,11 +30,11 @@
       "config": [
         "./dist/config.d.mts"
       ],
-      "vite": [
-        "./dist/vite.d.mts"
-      ],
       "runtime": [
         "./dist/runtime.d.mts"
+      ],
+      "vite": [
+        "./dist/vite.d.mts"
       ],
       "client": [
         "./dist/client.d.mts"
@@ -48,7 +48,8 @@
     },
     "./client": {
       "import": "./dist/client.mjs",
-      "require": "./dist/client.cjs"
+      "require": "./dist/client.cjs",
+      "types": "./dist/client.d.mts"
     },
     "./config": {
       "import": "./dist/config.mjs",
@@ -58,13 +59,13 @@
       "import": "./dist/loader.mjs",
       "require": "./dist/loader.cjs"
     },
-    "./vite": {
-      "import": "./dist/vite.mjs",
-      "require": "./dist/vite.cjs"
-    },
     "./runtime": {
       "import": "./dist/runtime.mjs",
       "require": "./dist/runtime.cjs"
+    },
+    "./vite": {
+      "import": "./dist/vite.mjs",
+      "require": "./dist/vite.cjs"
     },
     "./package.json": "./package.json"
   },
