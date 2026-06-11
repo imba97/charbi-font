@@ -1,17 +1,18 @@
 import type { FontConfig } from '../config/schema'
 import type { FontGroupMap, FontSubsetInfo } from '../types/font-subset'
+import type { CollectedChars } from './scan'
 import fs from 'node:fs'
 import path from 'node:path'
 import consola from 'consola'
 import FontMin from 'fontmin'
 import { normalizeFamilyForFileName } from '../utils/font-name'
-import { mergeChars } from '../utils/merge-chars'
+import { resolveFontChars } from '../utils/resolve-font-chars'
 
 // 生成字体子集
 export async function generateFontSubset(
   fontPathMap: Map<string, string>,
   outputDir: string,
-  chars: Set<string>,
+  collected: CollectedChars,
   fonts: FontConfig[],
   format: 'woff' | 'woff2' | 'ttf' = 'woff'
 ): Promise<Map<string, FontSubsetInfo[]>> {
@@ -30,7 +31,7 @@ export async function generateFontSubset(
 
     // 使用字体单独配置的格式，如果没有则使用全局格式
     const fontFormat = font.format || format
-    const charText = mergeChars(chars, font.extraText)
+    const charText = resolveFontChars(font, collected)
 
     try {
       const result = await new Promise<{ outputPath: string; size: number }>((resolve, reject) => {

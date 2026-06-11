@@ -91,20 +91,27 @@ describe('cli dependencies', () => {
   })
 
   describe('collectChars', () => {
-    it('should return char set', async () => {
-      const charSet = new Set(['你', '好', 'a', '1'])
-      ;(collectChars as ReturnType<typeof vi.fn>).mockResolvedValue(charSet)
+    it('should return collected chars', async () => {
+      const collected = {
+        fromFiles: new Set(['你', '好']),
+        all: new Set(['你', '好', 'a', '1'])
+      }
+      ;(collectChars as ReturnType<typeof vi.fn>).mockResolvedValue(collected)
 
       const result = await collectChars({} as any)
 
-      expect(result).toBe(charSet)
+      expect(result).toBe(collected)
+      expect(result.all).toEqual(collected.all)
     })
   })
 
   describe('generateFontSubset', () => {
     it('should be called with correct parameters', async () => {
       const fontPathMap = new Map([['Test-400', '/path/to/font.ttf']])
-      const charSet = new Set(['你', '好'])
+      const collected = {
+        fromFiles: new Set(['你', '好']),
+        all: new Set(['你', '好'])
+      }
       const fontGroupMap = new Map()
 
       ;(generateFontSubset as ReturnType<typeof vi.fn>).mockResolvedValue(fontGroupMap)
@@ -114,9 +121,15 @@ describe('cli dependencies', () => {
       ]
       const tempDir = os.tmpdir()
 
-      await generateFontSubset(fontPathMap, tempDir, charSet, fonts, 'woff')
+      await generateFontSubset(fontPathMap, tempDir, collected, fonts, 'woff')
 
-      expect(generateFontSubset).toHaveBeenCalledWith(fontPathMap, tempDir, charSet, fonts, 'woff')
+      expect(generateFontSubset).toHaveBeenCalledWith(
+        fontPathMap,
+        tempDir,
+        collected,
+        fonts,
+        'woff'
+      )
     })
   })
 

@@ -22,6 +22,8 @@ export interface FontConfig {
   format?: FontFormat
   // 仅对当前字体生效的额外文本
   extraText?: ExtraText
+  // 是否参与项目源码 scan，默认 true；为 false 时仅使用 DEFAULT_CHARS + extraText
+  scan?: boolean
 }
 
 // 扫描配置

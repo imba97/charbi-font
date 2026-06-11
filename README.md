@@ -145,6 +145,20 @@ import '@/styles/fonts'
 | `style`     | `"normal" \| "italic"`       | 否   | 字体样式                 |
 | `format`    | `"woff" \| "woff2" \| "ttf"` | 否   | 覆盖全局输出格式         |
 | `extraText` | `string \| string[]`         | 否   | 仅当前字体额外包含的字符 |
+| `scan`      | `boolean`                    | 否   | 是否参与项目源码 scan，默认 `true`；设为 `false` 时该字体子集仅含 DEFAULT_CHARS + `extraText`，不含扫描字符与全局 `scan.extraText` |
+
+示例：价格数字专用字体，只需手动指定字符、不参与项目 scan：
+
+```typescript
+{
+  family: 'LogoSC Unbounded Sans',
+  name: 'Regular',
+  weight: 400,
+  url: 'https://example.com/LogoSCUnboundedSans.ttf',
+  extraText: ['¥0123456789.', '优惠前'],
+  scan: false
+}
+```
 
 ### `build.output`
 

@@ -44,8 +44,15 @@ function appendLiteralChars(texts: string[], charSet: Set<string>): void {
   }
 }
 
+export interface CollectedChars {
+  /** 源码扫描字符（不含 scan.extraText、DEFAULT_CHARS） */
+  fromFiles: Set<string>
+  /** 完整全局集（= fromFiles + scan.extraText + DEFAULT_CHARS） */
+  all: Set<string>
+}
+
 // 收集使用的字符
-export async function collectChars(config: ResolvedConfig): Promise<Set<string>> {
+export async function collectChars(config: ResolvedConfig): Promise<CollectedChars> {
   consola.info('扫描项目文件...')
 
   const patterns = config.scan.srcDir.flatMap((dir) =>
@@ -60,7 +67,7 @@ export async function collectChars(config: ResolvedConfig): Promise<Set<string>>
 
   consola.info(`   找到 ${files.length} 个文件`)
 
-  const charSet = new Set<string>()
+  const fromFiles = new Set<string>()
 
   for (const file of files) {
     const content = fs.readFileSync(path.join(config.root, file), 'utf-8')
@@ -68,17 +75,18 @@ export async function collectChars(config: ResolvedConfig): Promise<Set<string>>
 
     // 移除注释后再提取字符
     const strippedContent = stripComments(content, ext)
-    extractCharsFromText(strippedContent, charSet)
+    extractCharsFromText(strippedContent, fromFiles)
   }
 
-  appendLiteralChars(normalizeExtraText(config.scan.extraText), charSet)
-  consola.info(`   收集到 ${charSet.size} 个唯一字符`)
+  const all = new Set(fromFiles)
+  appendLiteralChars(normalizeExtraText(config.scan.extraText), all)
+  consola.info(`   收集到 ${all.size} 个唯一字符`)
 
   // 添加默认字符集
   for (const char of DEFAULT_CHARS) {
-    charSet.add(char)
+    all.add(char)
   }
-  consola.info(`   添加默认字符集后共 ${charSet.size} 个字符`)
+  consola.info(`   添加默认字符集后共 ${all.size} 个字符`)
 
-  return charSet
+  return { fromFiles, all }
 }

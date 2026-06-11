@@ -76,15 +76,15 @@ async function runBuild(options: BuildOptions, globalOptions?: GlobalOptions) {
     process.exit(1)
   }
 
-  const chars = await collectChars(config)
+  const collected = await collectChars(config)
 
   const wordsCacheDir = getWordsCacheDir(config.cacheDir)
-  await exportFontWordFiles(chars, config.fonts, wordsCacheDir)
+  await exportFontWordFiles(collected, config.fonts, wordsCacheDir)
 
   const fontGroupMap = await generateFontSubset(
     fontPathMap,
     subsetCacheDir,
-    chars,
+    collected,
     config.fonts,
     config.output.format
   )

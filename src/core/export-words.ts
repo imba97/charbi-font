@@ -1,8 +1,9 @@
 import type { FontConfig } from '../config/schema'
+import type { CollectedChars } from './scan'
 import fs from 'node:fs'
 import path from 'node:path'
 import consola from 'consola'
-import { mergeChars } from '../utils/merge-chars'
+import { resolveFontChars } from '../utils/resolve-font-chars'
 import { subsetWordsFileName } from '../utils/subset-font-file'
 
 function sortCharText(text: string): string {
@@ -13,7 +14,7 @@ function sortCharText(text: string): string {
 
 /** 将扫描索引字符 + extraText 写入各字体对应的 words 清单（文件名与 subsets 一致） */
 export async function exportFontWordFiles(
-  chars: Set<string>,
+  collected: CollectedChars,
   fonts: FontConfig[],
   wordsDir: string
 ): Promise<void> {
@@ -27,7 +28,7 @@ export async function exportFontWordFiles(
   consola.info(`   输出目录: ${wordsDir}`)
 
   for (const font of fonts) {
-    const charText = sortCharText(mergeChars(chars, font.extraText))
+    const charText = sortCharText(resolveFontChars(font, collected))
     const fileName = subsetWordsFileName(font)
     const outPath = path.join(wordsDir, fileName)
 
