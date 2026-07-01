@@ -6,14 +6,10 @@ export function serializeVirtualCharbiModule(
   version: string,
   assetBase: string | undefined
 ): string {
-  const lines = [
+  const assetBaseLiteral = assetBase !== undefined ? JSON.stringify(assetBase) : 'undefined'
+  return [
     `export const FONT_BUILD_VERSION = ${JSON.stringify(version)};`,
-    `export const BUILD_FONT_FACES = ${JSON.stringify(faces)};`
-  ]
-  if (assetBase !== undefined) {
-    lines.push(`export const FONT_ASSET_BASE_URL = ${JSON.stringify(assetBase)};`)
-  } else {
-    lines.push('export const FONT_ASSET_BASE_URL = undefined;')
-  }
-  return lines.join('\n')
+    `export const BUILD_FONT_FACES = ${JSON.stringify(faces)};`,
+    `export const FONT_ASSET_BASE_URL = ${assetBaseLiteral};`
+  ].join('\n')
 }

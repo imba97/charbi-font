@@ -1,32 +1,6 @@
-import type { ResolvedConfig } from '../../src/config/schema'
 import { describe, expect, it } from 'vite-plus/test'
+import { mockResolvedConfig } from '../_helpers'
 import { resolveFontAssetBaseUrl, resolveFontFileUrl } from '../../src/utils/font-url'
-
-function mockResolvedConfig(overrides: Partial<ResolvedConfig> = {}): ResolvedConfig {
-  return {
-    scan: { srcDir: ['src'], extensions: ['vue'] },
-    fonts: [
-      {
-        family: 'Alibaba PuHuiTi',
-        name: 'Regular',
-        weight: 400,
-        url: 'https://example.com/font.ttf'
-      }
-    ],
-    output: { format: 'woff2', cssDir: 'src/styles' },
-    upload: { provider: 'cos', concurrency: 5 },
-    cos: {
-      cdnUrl: 'https://cdn.example.com',
-      basePath: 'static/fonts/built/{version}'
-    },
-    root: process.cwd(),
-    cacheDir: '/tmp/cache',
-    version: undefined,
-    env: {},
-    mode: 'development',
-    ...overrides
-  }
-}
 
 describe('font-url', () => {
   it('resolveFontAssetBaseUrl substitutes version in basePath', () => {

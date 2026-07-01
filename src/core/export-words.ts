@@ -3,6 +3,7 @@ import type { CollectedChars } from './scan'
 import fs from 'node:fs'
 import path from 'node:path'
 import consola from 'consola'
+import { emptyDirSync } from '../utils/empty-dir'
 import { resolveFontChars } from '../utils/resolve-font-chars'
 import { subsetWordsFileName } from '../utils/subset-font-file'
 
@@ -19,10 +20,7 @@ export async function exportFontWordFiles(
   wordsDir: string
 ): Promise<void> {
   fs.mkdirSync(wordsDir, { recursive: true })
-
-  for (const entry of fs.readdirSync(wordsDir)) {
-    fs.unlinkSync(path.join(wordsDir, entry))
-  }
+  emptyDirSync(wordsDir)
 
   consola.info('导出字符清单...')
   consola.info(`   输出目录: ${wordsDir}`)

@@ -6,10 +6,8 @@ export function stripJsComments(code: string): string {
     code
       // 移除单行注释 //
       .replace(/\/\/.*$/gm, '')
-      // 移除多行注释 /* */
+      // 移除多行注释 /* */（含 JSDoc /** */）
       .replace(/\/\*[\s\S]*?\*\//g, '')
-      // 移除 JSDoc 注释 /**
-      .replace(/\/\*\*[\s\S]*?\*\//g, '')
   )
 }
 

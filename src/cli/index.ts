@@ -9,6 +9,7 @@ import { generateFontCss } from '../core/generate-css'
 import { collectChars } from '../core/scan'
 import { generateFontSubset } from '../core/subset'
 import { getSubsetCacheDir, getWordsCacheDir } from '../utils/cache-dir'
+import { emptyDirSync } from '../utils/empty-dir'
 import { uploadToCDN } from '../uploader'
 import { getVersion, loadConfig } from '../config'
 import { resolveConfiguredSubsetPaths } from '../utils/subset-font-file'
@@ -65,9 +66,7 @@ async function runBuild(options: BuildOptions, globalOptions?: GlobalOptions) {
   const subsetCacheDir = getSubsetCacheDir(config.cacheDir)
   fs.mkdirSync(subsetCacheDir, { recursive: true })
   // 清空旧文件
-  for (const entry of fs.readdirSync(subsetCacheDir)) {
-    fs.unlinkSync(path.join(subsetCacheDir, entry))
-  }
+  emptyDirSync(subsetCacheDir)
 
   const fontPathMap = await downloadFonts(config.cacheDir, config.fonts, !options.cache)
 

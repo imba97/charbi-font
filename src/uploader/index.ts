@@ -13,20 +13,17 @@ export async function uploadToCDN(
   const uploader = createUploader(config)
   uploader.validateConfig(config)
 
-  const validFiles = files
-    .filter((file) => {
-      if (!fs.existsSync(file)) return false
-      const stats = fs.statSync(file)
-      return stats.size > 0
+  const validFiles: Array<{ filePath: string; fileName: string; sizeKB: string }> = []
+  for (const file of files) {
+    if (!fs.existsSync(file)) continue
+    const stats = fs.statSync(file)
+    if (stats.size === 0) continue
+    validFiles.push({
+      filePath: file,
+      fileName: path.basename(file),
+      sizeKB: (stats.size / 1024).toFixed(2)
     })
-    .map((file) => {
-      const stats = fs.statSync(file)
-      return {
-        filePath: file,
-        fileName: path.basename(file),
-        sizeKB: (stats.size / 1024).toFixed(2)
-      }
-    })
+  }
 
   if (validFiles.length === 0) {
     consola.error('没有有效的文件可上传')

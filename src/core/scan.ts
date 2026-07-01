@@ -1,10 +1,15 @@
-import type { ExtraText, ResolvedConfig } from '../config/schema'
+import type { ResolvedConfig } from '../config/schema'
 import fs from 'node:fs'
 import path from 'node:path'
 import consola from 'consola'
+import pLimit from 'p-limit'
 import { glob } from 'tinyglobby'
+import { addExtraTextToSet } from '../utils/merge-chars'
 import { DEFAULT_CHARS } from '../utils/defaults'
 import { stripComments } from './strip-comments'
+
+/** 文件 IO 并发上限：避免一次性打开过多 fd */
+const SCAN_FILE_CONCURRENCY = 16
 
 // 从文本中提取字符
 function extractCharsFromText(text: string, charSet: Set<string>): void {
@@ -24,24 +29,6 @@ function extractCharsFromText(text: string, charSet: Set<string>): void {
   const symbols =
     text.match(/[·.,;:!?@#$%^&*()_+\-=[\]{}|\\/"'<>，。；：！？、【】《》「」『』（）]/g) || []
   symbols.forEach((c) => charSet.add(c))
-}
-
-function normalizeExtraText(extraText?: ExtraText): string[] {
-  if (!extraText) {
-    return []
-  }
-
-  return Array.isArray(extraText) ? extraText : [extraText]
-}
-
-function appendLiteralChars(texts: string[], charSet: Set<string>): void {
-  for (const text of texts) {
-    for (const char of text) {
-      if (char.trim()) {
-        charSet.add(char)
-      }
-    }
-  }
 }
 
 export interface CollectedChars {
@@ -68,18 +55,23 @@ export async function collectChars(config: ResolvedConfig): Promise<CollectedCha
   consola.info(`   找到 ${files.length} 个文件`)
 
   const fromFiles = new Set<string>()
+  const limit = pLimit(SCAN_FILE_CONCURRENCY)
 
-  for (const file of files) {
-    const content = fs.readFileSync(path.join(config.root, file), 'utf-8')
-    const ext = file.split('.').pop() || ''
+  await Promise.all(
+    files.map((file) =>
+      limit(async () => {
+        const content = await fs.promises.readFile(path.join(config.root, file), 'utf-8')
+        const ext = file.split('.').pop() || ''
 
-    // 移除注释后再提取字符
-    const strippedContent = stripComments(content, ext)
-    extractCharsFromText(strippedContent, fromFiles)
-  }
+        // 移除注释后再提取字符
+        const strippedContent = stripComments(content, ext)
+        extractCharsFromText(strippedContent, fromFiles)
+      })
+    )
+  )
 
   const all = new Set(fromFiles)
-  appendLiteralChars(normalizeExtraText(config.scan.extraText), all)
+  addExtraTextToSet(all, config.scan.extraText)
   consola.info(`   收集到 ${all.size} 个唯一字符`)
 
   // 添加默认字符集
